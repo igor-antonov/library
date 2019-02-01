@@ -1,8 +1,12 @@
 package ru.otus.library.domain;
 
+import lombok.Getter;
+
 public class Genre {
 
+    @Getter
     private long id;
+    @Getter
     private String name;
 
     public Genre(long id, String name) {
@@ -11,15 +15,6 @@ public class Genre {
     }
     public Genre(String name) {
         this.name = name;
-    }
-
-
-    public long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override

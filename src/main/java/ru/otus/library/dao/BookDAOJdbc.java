@@ -11,7 +11,6 @@ import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.BookMapper;
 import ru.otus.library.domain.Genre;
-import ru.otus.library.service.BookService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +18,10 @@ import java.util.Map;
 @Repository
 public class BookDAOJdbc implements BookDAO {
 
-    private final BookService bookService;
     private final JdbcOperations jdbc;
     private final NamedParameterJdbcOperations parameterJdbc;
 
-    public BookDAOJdbc(JdbcOperations jdbcOperations, NamedParameterJdbcOperations parameterJdbc, BookService bookService){
-        this.bookService = bookService;
+    public BookDAOJdbc(JdbcOperations jdbcOperations, NamedParameterJdbcOperations parameterJdbc){
         this.jdbc = jdbcOperations;
         this.parameterJdbc = parameterJdbc;
     }
@@ -34,8 +31,12 @@ public class BookDAOJdbc implements BookDAO {
         try{
             Map<String, Object> params = new HashMap<>();
             params.put("id", id);
-            return parameterJdbc.queryForObject("select * from books where id =:id",
-                    params, new BookMapper(bookService));
+            return parameterJdbc.queryForObject("select b.*, a.first_name as 'author_first_name', " +
+                            "a.second_name as 'author_second_name',\n" +
+                            "a.birthday as 'author_birthday', g.genre_name from BOOKS b, GENRES g, AUTHORS a \n" +
+                            "where b.genre_id = g.id\n" +
+                            "and b.author_id = a.id and b.id =:id",
+                    params, new BookMapper());
         }
         catch (EmptyResultDataAccessException e){
             return null;
@@ -46,29 +47,48 @@ public class BookDAOJdbc implements BookDAO {
     public List<Book> getByTitle(String title) {
         Map<String, Object> params = new HashMap<>();
         params.put("title", title);
-        return parameterJdbc.query("select * from BOOKS where title =:title",
-                params, new BookMapper(bookService));
+        return parameterJdbc.query("select b.*, a.first_name as 'author_first_name', " +
+                        "a.second_name as 'author_second_name',\n" +
+                        "a.birthday as 'author_birthday', g.genre_name from BOOKS b, GENRES g, AUTHORS a \n" +
+                        "where b.genre_id = g.id\n" +
+                        "and b.author_id = a.id and title =:title",
+                params, new BookMapper());
     }
 
     @Override
     public List<Book> getByAuthor(Author author) {
         Map<String, Object> params = new HashMap<>();
-        params.put("genre_name", author.getSecondName());
-        return parameterJdbc.query("select b.* from BOOKS b, GENRES g " +
-                "where b.genre_id = g.id and g.genre_name = :genre_name", params, new BookMapper(bookService));
+        params.put("id", author.getId());
+        params.put("first_name", author.getFirstName());
+        params.put("birthday", author.getBirthday());
+        params.put("second_name", author.getSecondName());
+        return parameterJdbc.query("select b.*, a.first_name as 'author_first_name', " +
+                        "a.second_name as 'author_second_name',\n" +
+                        "a.birthday as 'author_birthday', g.genre_name from BOOKS b, GENRES g, AUTHORS a \n" +
+                        "where b.genre_id = g.id\n" +
+                        "and b.author_id = a.id and a.id = :id and a.first_name = :first_name" +
+                        " and a.second_name = :second_name and a.birthday = :birthday",
+                params, new BookMapper());
     }
 
     @Override
     public List<Book> getByGenre(Genre genre) {
         Map<String, Object> params = new HashMap<>();
         params.put("genre_name", genre.getName());
-        return parameterJdbc.query("select b.* from BOOKS b, GENRES g " +
-                "where b.genre_id = g.id and g.genre_name = :genre_name", params, new BookMapper(bookService));
+        return parameterJdbc.query("select b.*, a.first_name as 'author_first_name', " +
+                "a.second_name as 'author_second_name',\n" +
+                "a.birthday as 'author_birthday', g.genre_name from BOOKS b, GENRES g, AUTHORS a \n" +
+                "where b.genre_id = g.id\n" +
+                "and b.author_id = a.id and g.genre_name = :genre_name", params, new BookMapper());
     }
 
     @Override
     public List<Book> getAll() {
-        return jdbc.query("select * from books", new BookMapper(bookService));
+        return jdbc.query("select b.*, a.first_name as 'author_first_name', " +
+                "a.second_name as 'author_second_name',\n" +
+                "a.birthday as 'author_birthday', g.genre_name from BOOKS b, GENRES g, AUTHORS a \n" +
+                "where b.genre_id = g.id\n" +
+                "and b.author_id = a.id", new BookMapper());
     }
 
     @Override
@@ -96,13 +116,13 @@ public class BookDAOJdbc implements BookDAO {
     }
 
     @Override
-    public void updateById(int id, Book book) {
+    public int updateById(int id, Book book) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("title", book.getTitle());
         params.addValue("authorId", book.getAuthor().getId());
         params.addValue("genreId", book.getGenre().getId());
-        parameterJdbc.update("update books set title =:title, author_id =:authorId," +
+        return parameterJdbc.update("update books set title =:title, author_id =:authorId," +
                 " genre_id =:genreId where id =:id", params);
     }
 

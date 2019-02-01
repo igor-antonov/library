@@ -15,6 +15,6 @@ public interface BookDAO {
     int insert(Book book);
     void deleteByTitle(String title);
     void deleteAll();
-    void updateById(int id, Book book);
+    int updateById(int id, Book book);
     int count();
 }

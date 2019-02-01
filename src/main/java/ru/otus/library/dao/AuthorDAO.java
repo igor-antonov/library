@@ -12,8 +12,9 @@ public interface AuthorDAO {
     List<Author> getByBirthday(Date birthday);
     List<Author> getAll();
     int insert(String firstName, String secondName, Date birthday);
-    void deleteBySecondName(String secondName);
+    void deleteById(int id);
     void deleteAll();
-    void updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday);
+    int updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday);
+    int updateById(int id, String firstName, String secondName, Date birthday);
     int count();
 }

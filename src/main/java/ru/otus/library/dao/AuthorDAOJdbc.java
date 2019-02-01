@@ -81,10 +81,10 @@ public class AuthorDAOJdbc implements AuthorDAO {
     }
 
     @Override
-    public void deleteBySecondName(String secondName) {
+    public void deleteById(int id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("secondName", secondName);
-        parameterJdbc.update("delete from authors where second_name =:secondName", params);
+        params.addValue("id", id);
+        parameterJdbc.update("delete from authors where id =:id", params);
     }
 
     @Override
@@ -93,14 +93,34 @@ public class AuthorDAOJdbc implements AuthorDAO {
     }
 
     @Override
-    public void updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday) {
+    public int updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday) {
+        if (getBySecondName(oldSecondName).size()>0){
+            System.out.println("По указанной фамилии найдено несколько записей. Измените запись по Id:");
+            for (Author author : getBySecondName(oldSecondName)){
+                System.out.println(author.getId() + " ");
+            }
+            return -1;
+        }
+        else{
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("firstName", firstName);
+            params.addValue("secondName", secondName);
+            params.addValue("birthday", birthday);
+            params.addValue("oldSecondName", secondName);
+            return parameterJdbc.update("update authors set first_name =:firstName, second_name =:secondName," +
+                    " birthday =:birthday where second_name =:oldSecondName", params);
+        }
+    }
+
+    @Override
+    public int updateById(int id, String firstName, String secondName, Date birthday) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("firstName", firstName);
         params.addValue("secondName", secondName);
         params.addValue("birthday", birthday);
-        params.addValue("oldSecondName", secondName);
-        parameterJdbc.update("update authors set first_name =:firstName, second_name =:secondName," +
-                        " birthday =:birthday where second_name =:oldSecondName", params);
+        params.addValue("id", id);
+        return parameterJdbc.update("update authors set first_name =:firstName, second_name =:secondName," +
+             " birthday =:birthday where id =:id", params);
     }
 
     @Override

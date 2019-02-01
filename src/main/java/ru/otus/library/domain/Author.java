@@ -1,12 +1,17 @@
 package ru.otus.library.domain;
 
+import lombok.Getter;
 import java.sql.Date;
 
 public class Author {
 
+    @Getter
     private long id;
+    @Getter
     private final String firstName;
+    @Getter
     private final String secondName;
+    @Getter
     private final Date birthday;
 
     public Author(long id, String firstName, String secondName, Date birthday) {
@@ -20,22 +25,6 @@ public class Author {
         this.firstName = firstName;
         this.secondName = secondName;
         this.birthday = birthday;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getSecondName() {
-        return secondName;
-    }
-
-    public Date getBirthday() {
-        return birthday;
     }
 
     @Override

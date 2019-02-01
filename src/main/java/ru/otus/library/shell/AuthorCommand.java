@@ -2,8 +2,8 @@ package ru.otus.library.shell;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import ru.otus.library.dao.AuthorDAO;
-import ru.otus.library.domain.Author;
+import ru.otus.library.service.AuthorService;
+
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +11,17 @@ import java.util.List;
 @ShellComponent
 public class AuthorCommand {
 
-    private final AuthorDAO authorDAO;
+    private final AuthorService authorService;
 
-    public AuthorCommand(AuthorDAO authorDAO){
-        this.authorDAO = authorDAO;
+    public AuthorCommand(AuthorService authorService){
+        this.authorService = authorService;
     }
 
     @ShellMethod(value = "Добавление автора", key = "newauthor")
     public String add(String firstName, String secondName, String birthday){
         try {
             return String.format("Добавлен автор %s %s с идентификатором %s",
-                    firstName, secondName, authorDAO.insert(firstName, secondName, Date.valueOf(birthday)));
+                    firstName, secondName, authorService.add(firstName, secondName, Date.valueOf(birthday)));
         }
         catch (IllegalArgumentException e){
             return "Укажите дату рождения в формате YYYY-MM-DD";
@@ -31,9 +31,12 @@ public class AuthorCommand {
     @ShellMethod(value = "Изменение автора", key = "editauthor")
     public String updateBySecondName(String oldSecondName, String firstName, String secondName, String birthday){
         try {
-            if (authorDAO.getBySecondName(secondName).size()>0){
-                authorDAO.updateBySecondName(oldSecondName, firstName, secondName, Date.valueOf(birthday));
+            int result = authorService.updateBySecondName(oldSecondName, firstName, secondName, Date.valueOf(birthday));
+            if (result >0){
                 return String.format("Автор с фамилией %s изменен", oldSecondName);
+            }
+            else if (result == -1){
+                return "";
             }
             else {
                 return String.format("Автор с фамилией %s не найден", secondName);
@@ -44,31 +47,45 @@ public class AuthorCommand {
         }
     }
 
-    @ShellMethod(value = "Удаление автора по фамилии", key = "deleteauthor")
-    public String deleteBySecondName(String secondName){
-        if (authorDAO.getBySecondName(secondName).size()>0){
-            authorDAO.deleteBySecondName(secondName);
-            return String.format("Автор с фамилией %s удален", secondName);
+    @ShellMethod(value = "Изменение автора", key = "editauthorid")
+    public String updateById(String id, String firstName, String secondName, String birthday){
+        try {
+            int result = authorService.updateById(Integer.valueOf(id), firstName, secondName, Date.valueOf(birthday));
+            if (result != -1){
+                return String.format("Автор с идентификатором %s изменен", result);
+            }
+            else {
+                return String.format("Автор с фамилией %s не найден", secondName);
+            }
+        }
+        catch (IllegalArgumentException e){
+            return "Укажите дату рождения в формате YYYY-MM-DD";
+        }
+    }
+
+    @ShellMethod(value = "Удаление автора по идентификатору", key = "deleteauthor")
+    public String deleteById(int id){
+        if (authorService.deleteById(id)){
+            return String.format("Автор с идентификатором %d удален", id);
         }
         else {
-            return String.format("Автор с фамилией %s не найден", secondName);
+            return String.format("Автор с идентификатором %d не найден", id);
         }
     }
 
     @ShellMethod(value = "Удаление всех авторов", key = "deleteauthorall")
     public String deleteAll(){
-        authorDAO.deleteAll();
-        return "таблица авторов очищена";
+        if (authorService.deleteAll()){
+            return "таблица авторов очищена";
+        }
+        return "при удалении произошла ошибка";
     }
 
     @ShellMethod(value = "Поиск автора по имени и фамилии", key = "getauthorsfs")
     public List<String> getByFirstNameAndSecondName(String firstName, String secondName){
-        ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getByFirstNameAndSecondName(firstName, secondName)){
-            authors.add(author.toString());
-        }
-        if (authors.size()>1){
-            return authors;
+        List<String> authors = new ArrayList<>();
+        if (authorService.getByFirstNameAndSecondName(firstName, secondName) != null){
+            return authorService.getByFirstNameAndSecondName(firstName, secondName);
         }
         else {
             authors.add("Результаты не найдены");
@@ -78,12 +95,9 @@ public class AuthorCommand {
 
     @ShellMethod(value = "Поиск автора по фамилии", key = "getauthorss")
     public List<String> getBySecondName(String secondName){
-        ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getBySecondName(secondName)){
-            authors.add(author.toString());
-        }
-        if (authors.size()>1){
-            return authors;
+        List<String> authors = new ArrayList<>();
+        if (authorService.getBySecondName(secondName) != null){
+            return authorService.getBySecondName(secondName);
         }
         else {
             authors.add("Результаты не найдены");
@@ -92,14 +106,11 @@ public class AuthorCommand {
     }
 
     @ShellMethod(value = "Поиск автора по дате рождения", key = "getauthorsb")
-    public ArrayList<String> getByBirthday(String birthday){
-        ArrayList<String> authors = new ArrayList<>();
-        try {
-            for (Author author: authorDAO.getByBirthday(Date.valueOf(birthday))){
-                authors.add(author.toString());
-            }
-            if (authors.size()>1){
-                return authors;
+    public List<String> getByBirthday(String birthday){
+        List<String> authors = new ArrayList<>();
+        try{
+            if (authorService.getByBirthday(Date.valueOf(birthday)) != null){
+                return authorService.getByBirthday(Date.valueOf(birthday));
             }
             else {
                 authors.add("Результаты не найдены");
@@ -114,12 +125,9 @@ public class AuthorCommand {
 
     @ShellMethod(value = "Найти всех авторов", key = "getallauthors")
     public List<String> getAll(){
-        ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getAll()){
-            authors.add(author.toString());
-        }
-        if (authors.size()>1){
-            return authors;
+        List<String> authors = new ArrayList<>();
+        if (authorService.getAll() != null){
+            return authorService.getAll();
         }
         else {
             authors.add("Результаты не найдены");
@@ -129,7 +137,7 @@ public class AuthorCommand {
 
     @ShellMethod(value = "Показать количество авторов", key = "getauthorsc")
     public String getCount(){
-        return "Количество жанров: " + authorDAO.count();
+        return "Количество жанров: " + authorService.getCount();
     }
 
 }

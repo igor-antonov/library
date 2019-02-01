@@ -1,10 +1,16 @@
 package ru.otus.library.domain;
 
+import lombok.Getter;
+
 public class Book {
 
+    @Getter
     private long id;
+    @Getter
     private final String title;
+    @Getter
     private final Author author;
+    @Getter
     private final Genre genre;
 
     public Book(long id, String title, Author author, Genre genre) {
@@ -18,22 +24,6 @@ public class Book {
         this.title = title;
         this.author = author;
         this.genre = genre;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Author getAuthor() {
-        return author;
-    }
-
-    public Genre getGenre() {
-        return genre;
     }
 
     @Override

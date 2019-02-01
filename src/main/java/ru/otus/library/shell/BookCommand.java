@@ -2,10 +2,6 @@ package ru.otus.library.shell;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import ru.otus.library.dao.BookDAO;
-import ru.otus.library.domain.Author;
-import ru.otus.library.domain.Book;
-import ru.otus.library.domain.Genre;
 import ru.otus.library.service.BookService;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,51 +9,38 @@ import java.util.List;
 @ShellComponent
 public class BookCommand {
 
-    private final BookDAO bookDAO;
     private final BookService bookService;
 
-    public BookCommand(BookDAO bookDAO, BookService bookService) {
-        this.bookDAO = bookDAO;
+    public BookCommand(BookService bookService) {
         this.bookService = bookService;
     }
 
     @ShellMethod(value = "Добавление книги", key = "newbook")
     public String add(String title, int authorId, int genreId){
-        Author author = bookService.getAuthor(authorId);
-        if (author == null){
-            return String.format("Автор по идентификатору %d не найден", authorId);
+        int result = bookService.add(title, authorId, genreId);
+
+        switch (result){
+            case -1: return String.format("Автор по идентификатору %d не найден", authorId);
+            case -2: return String.format("Жанр по идентификатору %d не найден", genreId);
+            default: return String.format("Добавлена книга %s с идентификатором %d", title, result);
         }
-        Genre genre = bookService.getGenre(genreId);
-        if (genre == null){
-            return String.format("Жанр по идентификатору %d не найден", genreId);
-        }
-        return String.format("Добавлена книга %s с идентификатором %d",
-                title, bookDAO.insert(new Book(title, author, genre)));
     }
 
     @ShellMethod(value = "Изменение книги", key = "editbook")
     public String updateByTitle(int bookId, String title, int authorId, int genreId){
-        Author author = bookService.getAuthor(authorId);
-        if (author == null){
-            return String.format("Автор по идентификатору %d не найден", authorId);
-        }
-        Genre genre = bookService.getGenre(genreId);
-        if (genre == null){
-            return String.format("Жанр по идентификатору %d не найден", genreId);
-        }
-        if (bookDAO.getById(bookId) != null){
-            bookDAO.updateById(bookId, new Book(title, author, genre));
-            return String.format("Книга с идентификатором %d изменена", bookId);
-        }
-        else {
-            return String.format("Книга с идентификатором %d не найдена", bookId);
+        int result = bookService.updateById(bookId, title, authorId, genreId);
+
+        switch (result){
+            case -1: return String.format("Автор по идентификатору %d не найден", authorId);
+            case -2: return String.format("Жанр по идентификатору %d не найден", genreId);
+            case -3: return String.format("Книга с идентификатором %d не найдена", bookId);
+            default: return String.format("Книга с идентификатором %d изменена", bookId);
         }
     }
 
     @ShellMethod(value = "Удаление книги по названию", key = "deletebook")
     public String deleteByTitle(String title){
-        if (bookDAO.getByTitle(title).size()>0){
-            bookDAO.deleteByTitle(title);
+        if (bookService.deleteByTitle(title)){
             return String.format("Книга %s удалена", title);
         }
         else {
@@ -67,18 +50,19 @@ public class BookCommand {
 
     @ShellMethod(value = "Удаление всех книг", key = "deletebookall")
     public String deleteAll(){
-        bookDAO.deleteAll();
-        return String.format("Таблица книг очищена");
+        if (bookService.deleteAll()){
+            return String.format("Таблица книг очищена");
+        }
+        else {
+            return "при удалении произошла ошибка";
+        }
     }
 
     @ShellMethod(value = "Поиск книг по названию", key = "getbooksbyt")
     public List<String> getByTitle(String title){
-        ArrayList<String> books = new ArrayList<>();
-        for (Book book: bookDAO.getByTitle(title)){
-            books.add(book.toString());
-        }
-        if (books.size()>1){
-            return books;
+        List<String> books = new ArrayList<>();
+        if (bookService.getByTitle(title) != null){
+            return bookService.getByTitle(title);
         }
         else {
             books.add("Результаты не найдены");
@@ -89,17 +73,8 @@ public class BookCommand {
     @ShellMethod(value = "Поиск книг по автору", key = "getbooksbya")
     public List<String> getByAuthorId(int authorId){
         ArrayList<String> books = new ArrayList<>();
-        Author author = bookService.getAuthor(authorId);
-        if (author == null){
-            books.add(String.format("Автор по идентификатору %d не найден", authorId));
-            return books;
-        }
-
-        for (Book book: bookDAO.getByAuthor(bookService.getAuthor(authorId))){
-            books.add(book.toString());
-        }
-        if (books.size()>1){
-            return books;
+        if (bookService.getByAuthorId(authorId) != null){
+            return bookService.getByAuthorId(authorId);
         }
         else {
             books.add("Результаты не найдены");
@@ -109,18 +84,8 @@ public class BookCommand {
     @ShellMethod(value = "Поиск книг по жанру", key = "getbooksbyg")
     public List<String> getByGenreName(String genreName){
         ArrayList<String> books = new ArrayList<>();
-        Genre genre = bookService.getGenre(genreName);
-
-        if (genre == null){
-            books.add(String.format("Жанр %s не найден", genreName));
-            return books;
-        }
-
-        for (Book book: bookDAO.getByGenre(genre)){
-            books.add(book.toString());
-        }
-        if (books.size()>1){
-            return books;
+        if (bookService.getByGenreName(genreName) != null){
+            return bookService.getByGenreName(genreName);
         }
         else {
             books.add("Результаты не найдены");
