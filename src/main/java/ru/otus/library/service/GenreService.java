@@ -1,57 +1,60 @@
 package ru.otus.library.service;
 
 import org.springframework.stereotype.Service;
-import ru.otus.library.dao.GenreDAO;
+import ru.otus.library.repository.GenreRepository;
 import ru.otus.library.domain.Genre;
+
+import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class GenreService {
 
-    private final GenreDAO genreDAO;
+    private final GenreRepository genreRepository;
 
-    public GenreService(GenreDAO genreDAO){
-        this.genreDAO = genreDAO;
+    public GenreService(GenreRepository genreRepository){
+        this.genreRepository = genreRepository;
     }
 
-    public int add(String genreName) {
-        if (genreDAO.getByName(genreName) != null){
+    public long add(String genreName) {
+        try {
+            genreRepository.getByName(genreName);
             return -1;
         }
-        else {
-            return genreDAO.insert(new Genre(genreName));
+        catch (NoResultException e){
+            return genreRepository.insert(new Genre(genreName));
         }
     }
 
     public boolean update(String oldName, String newName){
-        if (genreDAO.getByName(oldName) != null) {
-            genreDAO.updateByName(oldName, newName);
+        try {
+            genreRepository.updateByName(oldName, newName);
             return true;
         }
-        else {
+        catch (NoResultException e){
             return false;
         }
     }
 
     public boolean delete(String name){
-        if (genreDAO.getByName(name) != null) {
-            genreDAO.deleteByName(name);
+        try {
+            genreRepository.deleteByName(name);
             return true;
         }
-        else {
+        catch (NoResultException e){
             return false;
         }
     }
 
     public boolean deleteAll(){
-        genreDAO.deleteAll();
+        genreRepository.deleteAll();
         return true;
     }
 
     public List<String> getAll(){
         ArrayList<String> genres = new ArrayList<>();
-        for (Genre genre: genreDAO.getAll()){
+        for (Genre genre: genreRepository.getAll()){
             genres.add(genre.toString());
         }
         if (genres.size()>0){
@@ -64,14 +67,14 @@ public class GenreService {
 
     public String getByName(String name){
         try {
-            return genreDAO.getByName(name).toString();
+            return genreRepository.getByName(name).toString();
         }
-        catch (NullPointerException e){
+        catch (NoResultException e){
             return String.format("Жанр %s не найден", name);
         }
     }
 
-    public int getCount(){
-        return genreDAO.count();
+    public long getCount(){
+        return genreRepository.count();
     }
 }

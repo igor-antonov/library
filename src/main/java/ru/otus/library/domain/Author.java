@@ -1,18 +1,24 @@
 package ru.otus.library.domain;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import javax.persistence.*;
 import java.sql.Date;
 
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "authors")
 public class Author {
 
-    @Getter
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @Getter
-    private final String firstName;
-    @Getter
-    private final String secondName;
-    @Getter
-    private final Date birthday;
+    @Column(name = "first_name")
+    private String firstName;
+    @Column(name = "second_name")
+    private String secondName;
+    private Date birthday;
 
     public Author(long id, String firstName, String secondName, Date birthday) {
         this.id = id;

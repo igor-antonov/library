@@ -1,16 +1,16 @@
-package ru.otus.library.dao;
+package ru.otus.library.repository;
 
 import ru.otus.library.domain.Genre;
 
 import java.util.List;
 
-public interface GenreDAO {
-    Genre getById(int id);
+public interface GenreRepository {
+    Genre getById(long id);
     Genre getByName(String name);
     List<Genre> getAll();
-    int insert(Genre genre);
+    long insert(Genre genre);
     void deleteByName(String name);
     void deleteAll();
     void updateByName(String oldName, String newName);
-    int count();
+    long count();
 }

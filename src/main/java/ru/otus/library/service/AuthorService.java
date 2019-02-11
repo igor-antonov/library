@@ -1,41 +1,28 @@
 package ru.otus.library.service;
 
 import org.springframework.stereotype.Service;
-import ru.otus.library.dao.AuthorDAO;
+import ru.otus.library.repository.AuthorRepository;
 import ru.otus.library.domain.Author;
 
+import javax.persistence.NoResultException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AuthorService {
-    private final AuthorDAO authorDAO;
+    private final AuthorRepository authorRepository;
 
-    public AuthorService(AuthorDAO authorDAO){
-        this.authorDAO = authorDAO;
+    public AuthorService(AuthorRepository authorRepository){
+        this.authorRepository = authorRepository;
     }
 
-    public int add(String firstName, String secondName, Date birthday){
-        return authorDAO.insert(firstName, secondName, birthday);
+    public long add(String firstName, String secondName, Date birthday){
+        return authorRepository.insert(new Author(firstName, secondName, birthday));
     }
 
-    public int updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday){
-        return authorDAO.updateBySecondName(oldSecondName, firstName, secondName, birthday);
-    }
-
-    public int updateById(int id, String firstName, String secondName, Date birthday){
-        if (authorDAO.getById(id) != null) {
-            return authorDAO.updateById(id, firstName, secondName, birthday);
-        }
-        else {
-            return -1;
-        }
-    }
-
-    public boolean deleteById(int id){
-        if (authorDAO.getById(id) != null){
-            authorDAO.deleteById(id);
+    public boolean updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday){
+        if (authorRepository.updateBySecondName(oldSecondName, firstName, secondName, birthday)){
             return true;
         }
         else {
@@ -43,14 +30,33 @@ public class AuthorService {
         }
     }
 
+    public boolean updateById(int id, String firstName, String secondName, Date birthday){
+        if (authorRepository.updateById(id, firstName, secondName, birthday)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public boolean deleteById(long id){
+        try {
+            authorRepository.deleteById(id);
+            return true;
+        }
+        catch (NoResultException e){
+            return false;
+        }
+    }
+
     public boolean deleteAll(){
-        authorDAO.deleteAll();
+        authorRepository.deleteAll();
         return true;
     }
 
     public List<String> getByFirstNameAndSecondName(String firstName, String secondName){
         ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getByFirstNameAndSecondName(firstName, secondName)){
+        for (Author author: authorRepository.getByFirstNameAndSecondName(firstName, secondName)){
             authors.add(author.toString());
         }
         if (authors.size()>0){
@@ -59,11 +65,12 @@ public class AuthorService {
         else {
             return null;
         }
+
     }
 
     public List<String> getBySecondName(String secondName){
         ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getBySecondName(secondName)){
+        for (Author author: authorRepository.getBySecondName(secondName)){
             authors.add(author.toString());
         }
         if (authors.size()>0){
@@ -76,7 +83,7 @@ public class AuthorService {
 
     public ArrayList<String> getByBirthday(Date birthday){
         ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getByBirthday(birthday)){
+        for (Author author: authorRepository.getByBirthday(birthday)){
             authors.add(author.toString());
         }
         if (authors.size()>1){
@@ -89,7 +96,7 @@ public class AuthorService {
 
     public List<String> getAll(){
         ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getAll()){
+        for (Author author: authorRepository.getAll()){
             authors.add(author.toString());
         }
         if (authors.size()>0){
@@ -100,7 +107,7 @@ public class AuthorService {
         }
     }
 
-    public int getCount(){
-        return authorDAO.count();
+    public long getCount(){
+        return authorRepository.count();
     }
 }

@@ -16,25 +16,35 @@ public class BookCommand {
     }
 
     @ShellMethod(value = "Добавление книги", key = "newbook")
-    public String add(String title, int authorId, int genreId){
-        int result = bookService.add(title, authorId, genreId);
+    public String add(String title, long authorId, long genreId){
+        long result = bookService.add(title, authorId, genreId);
 
-        switch (result){
-            case -1: return String.format("Автор по идентификатору %d не найден", authorId);
-            case -2: return String.format("Жанр по идентификатору %d не найден", genreId);
-            default: return String.format("Добавлена книга %s с идентификатором %d", title, result);
+        if (result == -1){
+            return String.format("Автор по идентификатору %d не найден", authorId);
+        }
+        else if(result == -2){
+            return String.format("Жанр по идентификатору %d не найден", genreId);
+        }
+        else {
+            return String.format("Добавлена книга %s с идентификатором %d", title, result);
         }
     }
 
     @ShellMethod(value = "Изменение книги", key = "editbook")
-    public String updateByTitle(int bookId, String title, int authorId, int genreId){
-        int result = bookService.updateById(bookId, title, authorId, genreId);
+    public String updateById(long bookId, String title, long authorId, long genreId){
+        long result = bookService.updateById(bookId, title, authorId, genreId);
 
-        switch (result){
-            case -1: return String.format("Автор по идентификатору %d не найден", authorId);
-            case -2: return String.format("Жанр по идентификатору %d не найден", genreId);
-            case -3: return String.format("Книга с идентификатором %d не найдена", bookId);
-            default: return String.format("Книга с идентификатором %d изменена", bookId);
+        if(result == -1) {
+            return String.format("Автор по идентификатору %d не найден", authorId);
+        }
+        else if (result == -2) {
+            return String.format("Жанр по идентификатору %d не найден", genreId);
+        }
+        else if (result == -3) {
+            return String.format("Книга с идентификатором %d не найдена", bookId);
+        }
+        else {
+            return String.format("Книга с идентификатором %d изменена", bookId);
         }
     }
 

@@ -18,7 +18,7 @@ public class GenreCommand {
 
     @ShellMethod(value = "Добавление жанра", key = "newgenre")
     public String add(String genreName) {
-        int result = genreService.add(genreName);
+        long result = genreService.add(genreName);
         if (result == -1){
             return String.format("Жанр %s уже существует" , genreName);
         }

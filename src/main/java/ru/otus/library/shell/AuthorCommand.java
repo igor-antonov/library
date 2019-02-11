@@ -1,5 +1,6 @@
 package ru.otus.library.shell;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.otus.library.service.AuthorService;
@@ -11,6 +12,7 @@ import java.util.List;
 @ShellComponent
 public class AuthorCommand {
 
+    @Autowired
     private final AuthorService authorService;
 
     public AuthorCommand(AuthorService authorService){
@@ -31,15 +33,11 @@ public class AuthorCommand {
     @ShellMethod(value = "Изменение автора", key = "editauthor")
     public String updateBySecondName(String oldSecondName, String firstName, String secondName, String birthday){
         try {
-            int result = authorService.updateBySecondName(oldSecondName, firstName, secondName, Date.valueOf(birthday));
-            if (result >0){
+            if (authorService.updateBySecondName(oldSecondName, firstName, secondName, Date.valueOf(birthday))) {
                 return String.format("Автор с фамилией %s изменен", oldSecondName);
             }
-            else if (result == -1){
-                return "";
-            }
             else {
-                return String.format("Автор с фамилией %s не найден", secondName);
+                return null;
             }
         }
         catch (IllegalArgumentException e){
@@ -50,12 +48,11 @@ public class AuthorCommand {
     @ShellMethod(value = "Изменение автора", key = "editauthorid")
     public String updateById(String id, String firstName, String secondName, String birthday){
         try {
-            int result = authorService.updateById(Integer.valueOf(id), firstName, secondName, Date.valueOf(birthday));
-            if (result != -1){
-                return String.format("Автор с идентификатором %s изменен", result);
+            if (authorService.updateById(Integer.valueOf(id), firstName, secondName, Date.valueOf(birthday))){
+                return String.format("Автор с идентификатором %s изменен", id);
             }
             else {
-                return String.format("Автор с фамилией %s не найден", secondName);
+                return String.format("Автор с идентификатором %s не найден", id);
             }
         }
         catch (IllegalArgumentException e){
