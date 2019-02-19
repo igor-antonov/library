@@ -31,7 +31,6 @@ public class ReviewRepositoryJpa implements ReviewRepository {
     @Override
     @Transactional
     public List<Review> getByBook(Book book) {
-        System.out.println(book.getId());
         TypedQuery<Review> query = em.createQuery("select r from Review r, Book b " +
                 "where r.book = b.id and b.id =:book_id", Review.class).setParameter("book_id", book.getId());
         return query.getResultList();
@@ -39,15 +38,16 @@ public class ReviewRepositoryJpa implements ReviewRepository {
 
     @Override
     @Transactional
-    public long insert(Review review) {
+    public long insert(Review review){
         em.merge(review);
         return em.merge(review).getId();
     }
 
     @Override
     @Transactional
-    public void deleteAll() {
+    public boolean deleteAll() {
         em.createQuery("delete from Review r").executeUpdate();
+        return true;
     }
 
     @Override
@@ -55,12 +55,12 @@ public class ReviewRepositoryJpa implements ReviewRepository {
     public boolean updateById(long id, Review review) {
         try {
             long reviewId = getById(id).getId();
-            em.createQuery("update Review r set r.book =:bookId, r.text =:text," +
+            em.createQuery("update Review r set r.book =:book, r.text =:text," +
                     " r.creationDate =:creationDate, reviewer =:reviewer where id =:id")
                     .setParameter("id", reviewId)
                     .setParameter("text", review.getText())
                     .setParameter("creationDate", review.getCreationDate())
-                    .setParameter("bookId", review.getBook().getId())
+                    .setParameter("book", review.getBook())
                     .setParameter("reviewer", review.getReviewer())
                     .executeUpdate();
             return true;

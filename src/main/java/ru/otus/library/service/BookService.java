@@ -1,6 +1,7 @@
 package ru.otus.library.service;
 
 import org.springframework.stereotype.Service;
+import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.repository.AuthorRepository;
 import ru.otus.library.repository.BookRepository;
 import ru.otus.library.repository.GenreRepository;
@@ -9,8 +10,9 @@ import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
 
 import javax.persistence.NoResultException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
@@ -46,7 +48,11 @@ public class BookService {
         if (genre == null){
             return -2;
         }
-        if (bookRepository.getById(bookId) == null) {
+        try {
+            bookRepository.getById(bookId);
+        }
+        catch (DataNotFoundException e)
+        {
             return -3;
         }
         bookRepository.updateById(bookId, new Book(title, author, genre));
@@ -55,8 +61,7 @@ public class BookService {
 
     public boolean deleteByTitle(String title){
         try {
-            bookRepository.deleteByTitle(title);
-            return true;
+            return bookRepository.deleteByTitle(title);
         }
         catch (NoResultException e){
             return false;
@@ -64,57 +69,55 @@ public class BookService {
     }
 
     public boolean deleteAll(){
-        bookRepository.deleteAll();
-        return true;
+        return bookRepository.deleteAll();
     }
 
-    public List<String> getByTitle(String title){
-        ArrayList<String> books = new ArrayList<>();
-        for (Book book: bookRepository.getByTitle(title)){
-            books.add(book.toString());
-        }
-        if (books.size()>0){
-            return books;
+    public List<String> getByTitle(String title) throws DataNotFoundException {
+        List<String> result = bookRepository.getByTitle(title)
+                .stream().
+                        map(Book::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("results not found");
         }
         else {
-            return null;
+            return result;
         }
     }
 
-    public List<String> getByAuthorId(long authorId){
-        ArrayList<String> books = new ArrayList<>();
+    public List<String> getByAuthorId(long authorId) throws DataNotFoundException {
         Author author = authorRepository.getById(authorId);
         if (author == null){
-            books.add(String.format("Автор по идентификатору %d не найден", authorId));
-            return books;
+            return Collections.singletonList(String.format("Автор по идентификатору %d не найден", authorId));
         }
-        for (Book book: bookRepository.getByAuthor(author)){
-            books.add(book.toString());
-        }
-        if (books.size()>0){
-            return books;
+
+        List<String> result = bookRepository.getByAuthor(author)
+                .stream().
+                        map(Book::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("results not found");
         }
         else {
-            return null;
+            return result;
         }
     }
 
-    public List<String> getByGenreName(String genreName){
-        ArrayList<String> books = new ArrayList<>();
+    public List<String> getByGenreName(String genreName) throws DataNotFoundException {
         Genre genre = genreRepository.getByName(genreName);
         if (genre == null){
-            books.add(String.format("Жанр %s не найден", genreName));
-            return books;
+            return Collections.singletonList(String.format("Жанр %s не найден", genreName));
         }
 
-        for (Book book: bookRepository.getByGenre(genre)){
-            books.add(book.toString());
-        }
-        if (books.size()>0){
-            return books;
+        List<String> result = bookRepository.getByGenre(genre)
+                .stream().
+                        map(Book::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("results not found");
         }
         else {
-            return null;
+            return result;
         }
     }
 }

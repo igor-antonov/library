@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.shell.jline.InteractiveShellApplicationRunner;
-import org.springframework.shell.jline.ScriptShellApplicationRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Review;
@@ -23,10 +21,7 @@ import java.sql.Date;
 
 @RunWith(SpringRunner.class)
 @ComponentScan
-@DataJpaTest(properties ={
-        InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
-        ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false"
-})
+@DataJpaTest
 public class TestsEM {
 
     @Autowired
@@ -40,7 +35,6 @@ public class TestsEM {
     @Autowired
     TestEntityManager tem;
 
-    private long bookId;
     private long genreId;
     private long authorId;
     @Before
@@ -51,7 +45,7 @@ public class TestsEM {
         genreId = tem.persistAndGetId(
                 new Genre("comedian"), Long.class);
 
-        bookId = tem.persistAndGetId(
+        long bookId = tem.persistAndGetId(
                 new Book("tales",
                         tem.find(Author.class, authorId),
                         tem.find(Genre.class, genreId)

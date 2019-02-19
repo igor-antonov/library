@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
+import ru.otus.library.exception.DataNotFoundException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -21,13 +22,12 @@ public class BookRepositoryJpa implements BookRepository {
 
     @Override
     @Transactional
-    public Book getById(long id) {
+    public Book getById(long id) throws DataNotFoundException {
         try{
-            Book book = em.find(Book.class, id);
-            return book;
+            return em.find(Book.class, id);
         }
         catch (NoResultException e){
-            return null;
+            throw new DataNotFoundException("Результаты не найдены");
         }
     }
 
@@ -42,21 +42,16 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public List<Book> getByAuthor(Author author) {
         TypedQuery<Book> query = em.createQuery("select b from Book b, Author a " +
-                "where b.author = a.id and a.id =:id and a.firstName =:first_name " +
-                "and a.secondName =:second_name and a.birthday =:birthday", Book.class);
+                "where b.author = a.id and a.id =:id", Book.class);
         query.setParameter("id", author.getId());
-        query.setParameter("first_name", author.getFirstName());
-        query.setParameter("birthday", author.getBirthday());
-        query.setParameter("second_name", author.getSecondName());
         return query.getResultList();
     }
 
     @Override
     public List<Book> getByGenre(Genre genre) {
         TypedQuery<Book> query = em.createQuery("select b from Book b, Genre g " +
-                "where b.genre = g.id and g.id =:id and g.name =:genre_name", Book.class);
+                "where b.genre = g.id and g.id =:id", Book.class);
         query.setParameter("id", genre.getId());
-        query.setParameter("genre_name", genre.getName());
         return query.getResultList();
     }
 
@@ -74,16 +69,18 @@ public class BookRepositoryJpa implements BookRepository {
 
     @Override
     @Transactional
-    public void deleteByTitle(String title) throws NoResultException{
+    public boolean deleteByTitle(String title) throws NoResultException{
         for (Book book: getByTitle(title)){
             em.remove(book);
         }
+        return true;
     }
 
     @Override
     @Transactional
-    public void deleteAll() {
+    public boolean deleteAll() {
         em.createQuery("delete from Book b").executeUpdate();
+        return true;
     }
 
     @Override
@@ -100,7 +97,7 @@ public class BookRepositoryJpa implements BookRepository {
                     .executeUpdate();
             return true;
         }
-        catch (NoResultException e){
+        catch (DataNotFoundException e){
             return false;
         }
     }

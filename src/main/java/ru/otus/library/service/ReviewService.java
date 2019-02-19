@@ -3,17 +3,20 @@ package ru.otus.library.service;
 import org.springframework.stereotype.Service;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Review;
+import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.repository.BookRepository;
 import ru.otus.library.repository.ReviewRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final BookRepository bookRepository;
+    private Book book;
 
     public ReviewService(ReviewRepository reviewRepository, BookRepository bookRepository) {
         this.reviewRepository = reviewRepository;
@@ -21,43 +24,56 @@ public class ReviewService {
     }
 
     public long add(long bookId, String reviewer, String text) {
-        Book book = bookRepository.getById(bookId);
-        if (book == null){
+        try{
+            book = bookRepository.getById(bookId);
+            book.getId();
+            return reviewRepository.insert(new Review(book, reviewer, text));
+        }
+        catch (NullPointerException | DataNotFoundException e){
             return -1;
         }
-        return reviewRepository.insert(new Review(book, reviewer, text));
+
     }
 
     public boolean updateById(long id, long bookId, String reviewer, String text){
-        Book book = bookRepository.getById(bookId);
-        if (book == null){
-            return false;
-        }
-        else {
+        try {
+            book = bookRepository.getById(bookId);
             return reviewRepository.updateById(id, new Review(book, reviewer, text));
+        } catch (DataNotFoundException e) {
+            return false;
         }
     }
 
-    public List<String> getByBookId(long bookId){
+    public List<String> getByBookId(long bookId) throws DataNotFoundException {
         ArrayList<String> reviews = new ArrayList<>();
         Book book = bookRepository.getById(bookId);
         if (book == null){
             reviews.add(String.format("Книга по идентификатору %d не найдена", bookId));
             return reviews;
         }
-        for (Review review: reviewRepository.getByBook(book)){
-            reviews.add(review.toString());
-        }
-        if (reviews.size()>0){
-            return reviews;
+
+        List<String> result = reviewRepository.getByBook(book)
+                .stream().
+                        map(Review::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("results not found");
         }
         else {
-            return null;
+            return result;
+        }
+    }
+
+    public String getById(long id) {
+        try {
+            return reviewRepository.getById(id).toString();
+        }
+        catch (NullPointerException e){
+            return "results not found";
         }
     }
 
     public boolean deleteAll(){
-        reviewRepository.deleteAll();
-        return true;
+        return reviewRepository.deleteAll();
     }
 }

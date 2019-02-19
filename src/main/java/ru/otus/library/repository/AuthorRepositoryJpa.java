@@ -3,6 +3,8 @@ package ru.otus.library.repository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.library.domain.Author;
+import ru.otus.library.exception.DataNotFoundException;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -66,19 +68,22 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     @Override
     @Transactional
-    public void deleteById(long id) {
+    public boolean deleteById(long id) {
         em.remove(getById(id));
+        return true;
     }
 
     @Override
     @Transactional
-    public void deleteAll() {
+    public boolean deleteAll() {
         em.createQuery("delete from Author a").executeUpdate();
+        return true;
     }
 
     @Override
     @Transactional
-    public boolean updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday) {
+    public boolean updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday)
+            throws DataNotFoundException {
          int resultCount = getBySecondName(oldSecondName).size();
          if (resultCount == 1){
              em.createQuery("update Author set firstName =:firstName, secondName =:secondName," +
@@ -91,15 +96,14 @@ public class AuthorRepositoryJpa implements AuthorRepository {
              return true;
          }
          else if (resultCount < 1){
-             System.out.println(String.format("Автор с фамилией %s не найден", oldSecondName));
-             return false;
+             throw new DataNotFoundException(String.format("Автор с фамилией %s не найден", oldSecondName));
          }
          else {
-             System.out.println("По указанной фамилии найдено несколько записей. Измените запись по Id:");
+             StringBuilder err = new StringBuilder("По указанной фамилии найдено несколько записей. Измените запись по Id:");
              for (Author author : getBySecondName(oldSecondName)){
-                 System.out.println(author.getId() + " ");
+                 err.append(author.getId()).append(" ");
              }
-             return false;
+             throw new DataNotFoundException(err.toString());
          }
     }
 

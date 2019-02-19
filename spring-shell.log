@@ -223,3 +223,26 @@
 1549488188196:newreview 8 ivan good
 1549488301255:deletebook skazki
 1549710394794:newauthor vasya xxx 2019-09-09
+1550058395802:getallauthors
+1550060182205:editauthor 12 sdfe d 2010-10-10
+1550088018210:newauthor qwe ewq 2010-01-01
+1550088168620:deletebookall
+1550307313921:newbook a b c
+1550419590955:updatereview 265 Иван Плохо
+1550419603711:stacktrace
+1550420686383:updatereview 113 267 Иван плохо
+1550420762105:stacktrace
+1550421109604:updatereview 113 267 Иван плохо
+1550421293806:stacktrace
+1550421337695:updatereview 113 267 Иван плохо
+1550528986424:updatereview 2 4 Иван Плохо
+1550529418778:updatereview 124 283 Иван Плохо
+1550569007437:newreview 1 Иван Хорошо
+1550569017914:stacktrace
+1550570754005:newreview 44 ван Хорошо
+1550570765134:stacktrace
+1550571435921:newreview 44 ван Хорошо
+1550571447320:stacktrace
+1550571589916:newreview 44 ван Хорошо
+1550571595939:stacktrace
+1550571739723:newreview 44 ван Хорошо

@@ -46,25 +46,28 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     @Override
     @Transactional
-    public void deleteByName(String name) throws NoResultException{
+    public boolean deleteByName(String name) throws NoResultException{
         em.remove(getByName(name));
+        return true;
     }
 
     @Override
     @Transactional
-    public void deleteAll(){
+    public boolean deleteAll(){
         em.createQuery("delete from Genre g").executeUpdate();
+        return true;
     }
 
     @Override
     @Transactional
-    public void updateByName(String oldName, String newName) throws NoResultException {
+    public boolean updateByName(String oldName, String newName) throws NoResultException {
         String name = getByName(oldName).getName();
         em.createQuery("update Genre set genre_name =:newName " +
                 "where genre_name =:oldName")
                 .setParameter("newName",newName)
                 .setParameter("oldName",name)
                 .executeUpdate();
+        return true;
     }
 
     @Override
