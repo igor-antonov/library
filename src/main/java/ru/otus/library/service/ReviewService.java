@@ -46,7 +46,7 @@ public class ReviewService {
     public List<String> getByBookId(long bookId) throws DataNotFoundException {
         Book book = bookRepository.getById(bookId);
         if (book == null){
-            throw new DataNotFoundException("results not found");
+            throw new DataNotFoundException("Результаты не найдены");
         }
 
         List<String> result = reviewRepository.getByBook(book)
@@ -54,7 +54,7 @@ public class ReviewService {
                         map(Review::toString)
                 .collect(Collectors.toList());
         if (result.isEmpty()){
-            throw new DataNotFoundException("results not found");
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
             return result;
@@ -66,7 +66,7 @@ public class ReviewService {
             return reviewRepository.getById(id).toString();
         }
         catch (NullPointerException e){
-            return "results not found";
+            return "Результаты не найдены";
         }
     }
 

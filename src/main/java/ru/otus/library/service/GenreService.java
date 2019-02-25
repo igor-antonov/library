@@ -53,7 +53,7 @@ public class GenreService {
                         map(Genre::toString)
                 .collect(Collectors.toList());
         if (result.isEmpty()) {
-            throw new DataNotFoundException("results not found");
+            throw new DataNotFoundException("Результаты не найдены");
         } else {
             return result;
         }

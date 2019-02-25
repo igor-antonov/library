@@ -77,7 +77,7 @@ public class BookService {
                         map(Book::toString)
                 .collect(Collectors.toList());
         if (result.isEmpty()){
-            throw new DataNotFoundException("results not found");
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
             return result;
@@ -95,7 +95,7 @@ public class BookService {
                         map(Book::toString)
                 .collect(Collectors.toList());
         if (result.isEmpty()){
-            throw new DataNotFoundException("results not found");
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
             return result;
@@ -113,7 +113,7 @@ public class BookService {
                         map(Book::toString)
                 .collect(Collectors.toList());
         if (result.isEmpty()){
-            throw new DataNotFoundException("results not found");
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
             return result;
