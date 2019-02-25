@@ -33,24 +33,24 @@ public class BookRepositoryJpa implements BookRepository {
 
     @Override
     public List<Book> getByTitle(String title) {
-        TypedQuery<Book> query = em.createQuery("select b from Book b, Genre g, Author a " +
-                "where b.genre = g.id and b.author = a.id and title =:title", Book.class);
+        TypedQuery<Book> query =
+                em.createQuery("select b from Book b where b.title =:title", Book.class);
         query.setParameter("title", title);
         return query.getResultList();
     }
 
     @Override
     public List<Book> getByAuthor(Author author) {
-        TypedQuery<Book> query = em.createQuery("select b from Book b, Author a " +
-                "where b.author = a.id and a.id =:id", Book.class);
+        TypedQuery<Book> query =
+                em.createQuery("select b from Book b where b.author.id = :id", Book.class);
         query.setParameter("id", author.getId());
         return query.getResultList();
     }
 
     @Override
     public List<Book> getByGenre(Genre genre) {
-        TypedQuery<Book> query = em.createQuery("select b from Book b, Genre g " +
-                "where b.genre = g.id and g.id =:id", Book.class);
+        TypedQuery<Book> query =
+                em.createQuery("select b from Book b where b.genre.id = :id", Book.class);
         query.setParameter("id", genre.getId());
         return query.getResultList();
     }
@@ -71,6 +71,7 @@ public class BookRepositoryJpa implements BookRepository {
     @Transactional
     public boolean deleteByTitle(String title) throws NoResultException{
         for (Book book: getByTitle(title)){
+            em.refresh(book);
             em.remove(book);
         }
         return true;
@@ -79,7 +80,10 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     @Transactional
     public boolean deleteAll() {
-        em.createQuery("delete from Book b").executeUpdate();
+        for (Book book: getAll()){
+            em.refresh(book);
+            em.remove(book);
+        }
         return true;
     }
 

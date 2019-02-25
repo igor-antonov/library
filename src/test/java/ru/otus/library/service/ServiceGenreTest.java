@@ -13,6 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Genre;
 import ru.otus.library.repository.GenreRepository;
 
+import javax.persistence.NoResultException;
+
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
@@ -37,7 +39,7 @@ public class ServiceGenreTest {
 
     @Test
     public void addNewGenre(){
-        given(genreRepository.insert(genre)).willThrow(NullPointerException.class);
+        given(genreRepository.getByName(genre.getName())).willThrow(NoResultException.class);
         Assertions.assertThat(genreService.add("антиутопия"))
                 .isEqualTo(0L);
     }

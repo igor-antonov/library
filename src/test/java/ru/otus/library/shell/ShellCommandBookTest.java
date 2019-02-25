@@ -34,15 +34,15 @@ public class ShellCommandBookTest {
     BookService bookService;
 
     @Test
-    public void addNewBook(){
+    public void addNewBook() throws DataNotFoundException{
         given(bookService.add("1984", 1, 2)).willReturn(7L);
         Assertions.assertThat(sendShellCommand(String.format("newbook 1984 %s %s", 1, 2)))
                 .isEqualTo("Добавлена книга 1984 с идентификатором 7");
     }
 
     @Test
-    public void testUpdate() {
-        given(bookService.updateById(7, "Вий", 2, 4)).willReturn(1L);
+    public void testUpdate() throws DataNotFoundException {
+        given(bookService.updateById(7, "Вий", 2, 4)).willReturn(true);
         Assertions.assertThat(sendShellCommand(
                 String.format("editbook %s %s %s %s", 7, "Вий", 2, 4)))
                 .isEqualTo("Книга с идентификатором 7 изменена");

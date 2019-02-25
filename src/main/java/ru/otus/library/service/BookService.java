@@ -27,36 +27,35 @@ public class BookService {
         this.authorRepository = authorRepository;
     }
 
-    public long add(String title, long authorId, long genreId){
+    public long add(String title, long authorId, long genreId) throws DataNotFoundException {
         Author author = authorRepository.getById(authorId);
         if (author == null){
-            return -1;
+            throw new DataNotFoundException(String.format("Автор по идентификатору %s не найден", authorId));
         }
         Genre genre = genreRepository.getById(genreId);
         if (genre == null){
-            return -2;
+            throw new DataNotFoundException(String.format("Жанр по идентификатору %s не найден", genreId));
         }
         return bookRepository.insert(new Book(title, author, genre));
     }
 
-    public long updateById(long bookId, String title, long authorId, long genreId){
+    public boolean updateById(long bookId, String title, long authorId, long genreId) throws DataNotFoundException {
         Author author = authorRepository.getById(authorId);
         if (author == null){
-            return -1;
+            throw new DataNotFoundException(String.format("Автор по идентификатору %s не найден", authorId));
         }
         Genre genre = genreRepository.getById(genreId);
         if (genre == null){
-            return -2;
+            throw new DataNotFoundException(String.format("Жанр по идентификатору %s не найден", genreId));
         }
         try {
             bookRepository.getById(bookId);
         }
         catch (DataNotFoundException e)
         {
-            return -3;
+            throw new DataNotFoundException(String.format("Книга по идентификатору %s не найдена", bookId));
         }
-        bookRepository.updateById(bookId, new Book(title, author, genre));
-        return 1;
+        return bookRepository.updateById(bookId, new Book(title, author, genre));
     }
 
     public boolean deleteByTitle(String title){

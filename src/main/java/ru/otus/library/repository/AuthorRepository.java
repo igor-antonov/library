@@ -16,6 +16,6 @@ public interface AuthorRepository {
     boolean deleteById(long id);
     boolean deleteAll();
     boolean updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday) throws DataNotFoundException;
-    boolean updateById(int id, String firstName, String secondName, Date birthday);
+    boolean updateById(long id, String firstName, String secondName, Date birthday);
     long count();
 }

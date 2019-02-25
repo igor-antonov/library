@@ -20,42 +20,30 @@ public class BookCommand {
     public String add(String title, String authorId, String genreId){
         try {
             long result = bookService.add(title, Integer.valueOf(authorId), Integer.valueOf(genreId));
-
-
-        if (result == -1){
-            return String.format("Автор по идентификатору %s не найден", authorId);
-        }
-        else if(result == -2){
-            return String.format("Жанр по идентификатору %s не найден", genreId);
-        }
-        else {
             return String.format("Добавлена книга %s с идентификатором %d", title, result);
-        }
         }
         catch (IllegalArgumentException ex){
             return "Идентификаторы должны быть в числовом формате";
+        }
+        catch (DataNotFoundException e){
+            return e.getMessage();
         }
 
     }
 
     @ShellMethod(value = "Изменение книги", key = "editbook")
     public String updateById(String bookId, String title, String authorId, String genreId) {
-        try {
-            long result = bookService.updateById(Integer.valueOf(bookId), title,
+        try {bookService.updateById(Integer.valueOf(bookId), title,
                     Integer.valueOf(authorId), Integer.valueOf(genreId));
-
-            if (result == -1) {
-                return String.format("Автор по идентификатору %s не найден", authorId);
-            } else if (result == -2) {
-                return String.format("Жанр по идентификатору %s не найден", genreId);
-            } else if (result == -3) {
-                return String.format("Книга с идентификатором %s не найдена", bookId);
-            } else {
-                return String.format("Книга с идентификатором %s изменена", bookId);
-            }
-        } catch (IllegalArgumentException ex) {
+            return String.format("Книга с идентификатором %s изменена", bookId);
+        }
+        catch (IllegalArgumentException ex) {
             return "Идентификаторы должны быть в числовом формате";
         }
+        catch (DataNotFoundException e){
+            return e.getMessage();
+        }
+
     }
 
     @ShellMethod(value = "Удаление книги по названию", key = "deletebook")

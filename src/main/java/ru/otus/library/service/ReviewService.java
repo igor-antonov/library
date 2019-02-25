@@ -7,7 +7,6 @@ import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.repository.BookRepository;
 import ru.otus.library.repository.ReviewRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,11 +44,9 @@ public class ReviewService {
     }
 
     public List<String> getByBookId(long bookId) throws DataNotFoundException {
-        ArrayList<String> reviews = new ArrayList<>();
         Book book = bookRepository.getById(bookId);
         if (book == null){
-            reviews.add(String.format("Книга по идентификатору %d не найдена", bookId));
-            return reviews;
+            throw new DataNotFoundException("results not found");
         }
 
         List<String> result = reviewRepository.getByBook(book)

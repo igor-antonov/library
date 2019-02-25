@@ -20,9 +20,9 @@ public class GenreService {
 
     public long add(String genreName) {
         try {
-            genreRepository.getByName(genreName).toString();
+            genreRepository.getByName(genreName);
             return -1;
-        } catch (NullPointerException e) {
+        } catch (NoResultException e) {
             return genreRepository.insert(new Genre(genreName));
         }
     }

@@ -31,9 +31,14 @@ public class ReviewRepositoryJpa implements ReviewRepository {
     @Override
     @Transactional
     public List<Review> getByBook(Book book) {
-        TypedQuery<Review> query = em.createQuery("select r from Review r, Book b " +
-                "where r.book = b.id and b.id =:book_id", Review.class).setParameter("book_id", book.getId());
+        TypedQuery<Review> query = em.createQuery("select r from Review r " +
+                "where r.book  =:book", Review.class).setParameter("book", book);
         return query.getResultList();
+    }
+
+    @Override
+    public List<Review> getAll() {
+        return em.createQuery("select r from Review r", Review.class).getResultList();
     }
 
     @Override
@@ -47,6 +52,9 @@ public class ReviewRepositoryJpa implements ReviewRepository {
     @Transactional
     public boolean deleteAll() {
         em.createQuery("delete from Review r").executeUpdate();
+        for (Review review: getAll()){
+            em.refresh(review);
+        }
         return true;
     }
 
@@ -68,5 +76,10 @@ public class ReviewRepositoryJpa implements ReviewRepository {
         catch (NoResultException e){
             return false;
         }
+    }
+
+    @Override
+    public long count() {
+        return (long) em.createQuery("select count(id) from Review").getSingleResult();
     }
 }

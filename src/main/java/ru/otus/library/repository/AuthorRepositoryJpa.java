@@ -32,7 +32,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     @Override
     public List<Author> getByFirstNameAndSecondName(String firstName, String secondName) throws NoResultException{
         TypedQuery<Author> query = em.createQuery("select a from Author a where " +
-                "a.first_name =:firstName and a.secondName =:secondName", Author.class);
+                "a.firstName =:firstName and a.secondName =:secondName", Author.class);
         query.setParameter("firstName", firstName);
         query.setParameter("secondName", secondName);
         return query.getResultList();
@@ -109,7 +109,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     @Override
     @Transactional
-    public boolean updateById(int id, String firstName, String secondName, Date birthday){
+    public boolean updateById(long id, String firstName, String secondName, Date birthday){
         try {
             long authorId = getById(id).getId();
             em.createQuery("update Author set firstName =:firstName, secondName =:secondName," +

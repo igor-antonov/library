@@ -26,7 +26,8 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     @Override
     public Genre getByName(String name) throws NoResultException {
-        TypedQuery<Genre> query = em.createQuery("select g from Genre g where g.name =:name", Genre.class);
+        TypedQuery<Genre> query =
+                em.createQuery("select g from Genre g where g.name =:name", Genre.class);
         query.setParameter("name",name);
         return query.getSingleResult();
     }
@@ -55,6 +56,9 @@ public class GenreRepositoryJpa implements GenreRepository {
     @Transactional
     public boolean deleteAll(){
         em.createQuery("delete from Genre g").executeUpdate();
+        for (Genre genre : getAll()){
+            em.refresh(genre);
+        }
         return true;
     }
 
