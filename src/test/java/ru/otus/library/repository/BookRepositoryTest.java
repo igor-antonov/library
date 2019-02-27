@@ -40,52 +40,51 @@ public class BookRepositoryTest {
 
     @Before
     public void prepare(){
-        genreId = genreRepository.insert(new Genre("Comedian"));
-        genre = tem.find(Genre.class, genreId);
-        authorId = authorRepository.insert(new Author("Иван", "Бунин", Date.valueOf("1870-10-20")));
+        genre = genreRepository.save(new Genre("Comedian"));
+        authorId = authorRepository.save(new Author("Иван", "Бунин", Date.valueOf("1870-10-20"))).getId();
         author = tem.find(Author.class, authorId);
-        bookId = bookRepository.insert(new Book("Сказки", author, genre));
+        bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
         book = tem.find(Book.class, bookId);
     }
 
     @Test
-    public void findById() throws DataNotFoundException {
-        Assertions.assertThat(bookRepository.getById(bookId).getTitle()).isEqualTo(book.getTitle());
+    public void findById() {
+        Assertions.assertThat(bookRepository.findById(bookId).get().getTitle()).isEqualTo(book.getTitle());
     }
 
     @Test
     public void findByTitle(){
-        Assertions.assertThat(bookRepository.getByTitle(book.getTitle()).get(0).getTitle()).isEqualTo(book.getTitle());
+        Assertions.assertThat(bookRepository.findByTitle(book.getTitle()).get(0).getTitle()).isEqualTo(book.getTitle());
     }
 
     @Test
     public void findByGenre(){
-        Assertions.assertThat(bookRepository.getByGenre(genre).get(0).getTitle()).isEqualTo(book.getTitle());
+        Assertions.assertThat(bookRepository.findByGenre(genre).get(0).getTitle()).isEqualTo(book.getTitle());
     }
 
     @Test
     public void findByAuthor(){
-        Assertions.assertThat(bookRepository.getByAuthor(author).get(0).getTitle()).isEqualTo(book.getTitle());
+        Assertions.assertThat(bookRepository.findByAuthor(author).get(0).getTitle()).isEqualTo(book.getTitle());
     }
 
     @Test
     public void getAll(){
-        Assertions.assertThat(bookRepository.getAll()).isEqualTo(Collections.singletonList(book));
+        Assertions.assertThat(bookRepository.findAll()).isEqualTo(Collections.singletonList(book));
     }
 
     @Test
     public void deleteByTitle() throws DataNotFoundException {
         long bookId2 = tem.persistAndGetId(new Book("Война и мир", author, genre), Long.class);
-        Assertions.assertThat(bookRepository.getById(bookId2).getTitle()).isEqualTo("Война и мир");
+        Assertions.assertThat(bookRepository.findById(bookId2).get().getTitle()).isEqualTo("Война и мир");
         bookRepository.deleteByTitle("Война и мир");
-        Assertions.assertThat(bookRepository.getById(bookId2)).isEqualTo(null);
+        Assertions.assertThat(bookRepository.findById(bookId2).isPresent()).isEqualTo(false);
     }
 
     @Test
     public void deleteAll(){
         bookRepository.deleteAll();
-        Assertions.assertThat(bookRepository.getAll().size()).isEqualTo(0);
-        bookId = bookRepository.insert(new Book(book.getTitle(), author, genre));
+        Assertions.assertThat(bookRepository.findAll().size()).isEqualTo(0);
+        bookId = bookRepository.save(new Book(book.getTitle(), author, genre)).getId();
         book = tem.find(Book.class, bookId);
     }
 

@@ -8,6 +8,7 @@ import ru.otus.library.repository.BookRepository;
 import ru.otus.library.repository.ReviewRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,54 +24,51 @@ public class ReviewService {
     }
 
     public long add(long bookId, String reviewer, String text) {
-        try{
-            book = bookRepository.getById(bookId);
-            book.getId();
-            return reviewRepository.insert(new Review(book, reviewer, text));
-        }
-        catch (NullPointerException | DataNotFoundException e){
-            return -1;
-        }
-
+        Optional<Book> bookOpt = bookRepository.findById(bookId);
+        return bookOpt.map(book1 -> reviewRepository.save(new Review(book1, reviewer, text)).getId()).orElse(-1L);
     }
 
-    public boolean updateById(long id, long bookId, String reviewer, String text){
-        try {
-            book = bookRepository.getById(bookId);
-            return reviewRepository.updateById(id, new Review(book, reviewer, text));
-        } catch (DataNotFoundException e) {
+    public boolean updateById(long id, long bookId, String reviewer, String text) {
+        Optional<Book> bookOpt = bookRepository.findById(bookId);
+        if (bookOpt.isPresent()) {
+            return reviewRepository.updateById(id, new Review(bookOpt.get(), reviewer, text)) > 0;
+        }
+        else {
             return false;
         }
     }
 
     public List<String> getByBookId(long bookId) throws DataNotFoundException {
-        Book book = bookRepository.getById(bookId);
-        if (book == null){
-            throw new DataNotFoundException("Результаты не найдены");
-        }
-
-        List<String> result = reviewRepository.getByBook(book)
-                .stream().
-                        map(Review::toString)
-                .collect(Collectors.toList());
-        if (result.isEmpty()){
-            throw new DataNotFoundException("Результаты не найдены");
+        Optional<Book> bookOpt = bookRepository.findById(bookId);
+        if (bookOpt.isPresent()){
+            List<String> result = reviewRepository.findByBook(bookOpt.get())
+                    .stream().
+                            map(Review::toString)
+                    .collect(Collectors.toList());
+            if (result.isEmpty()){
+                throw new DataNotFoundException("Результаты не найдены");
+            }
+            else {
+                return result;
+            }
         }
         else {
-            return result;
+            throw new DataNotFoundException("Результаты не найдены");
         }
     }
 
     public String getById(long id) {
-        try {
-            return reviewRepository.getById(id).toString();
+        Optional<Review> review = reviewRepository.findById(id);
+        if (review.isPresent()){
+            return review.get().toString();
         }
-        catch (NullPointerException e){
+        else {
             return "Результаты не найдены";
         }
     }
 
     public boolean deleteAll(){
-        return reviewRepository.deleteAll();
+        reviewRepository.deleteAll();
+        return true;
     }
 }

@@ -21,8 +21,7 @@ import ru.otus.library.repository.ReviewRepository;
 
 import java.sql.Date;
 import java.util.Collections;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties={
@@ -52,35 +51,35 @@ public class ServiceReviewTest {
     }
 
     @Test
-    public void addNewReview() throws DataNotFoundException {
-        Mockito.when(bookRepository.getById(book.getId())).thenReturn(book);
-        Mockito.when(reviewRepository.insert(review))
-                .thenReturn(0L);
+    public void addNewReview() {
+        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.ofNullable(book));
+        Mockito.when(reviewRepository.save(new Review(book, review.getReviewer(), review.getText())))
+                .thenReturn(review);
         Assertions.assertThat(reviewService.add(book.getId(), review.getReviewer(), review.getText()))
-                .isEqualTo(0L);
+                .isGreaterThanOrEqualTo(0L);
     }
 
     @Test
-    public void testFailureUpdate() {
-        Mockito.when(reviewRepository.updateById(Long.valueOf("7"), review))
-                .thenReturn(false);
-        Assertions.assertThat(reviewService.updateById(1, 77L, "Иван", "Плохо"))
-                .isEqualTo(false);
+    public void testUpdate() {
+        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.ofNullable(book));
+        Mockito.when(reviewRepository.updateById(7,
+                new Review(book, "Иван", "Плохо")))
+                .thenReturn(7);
+        Assertions.assertThat(reviewService.updateById(
+                7, book.getId(), "Иван", "Плохо"))
+                .isEqualTo(true);
     }
 
     @Test
-    public void testFoundByBook() throws DataNotFoundException {
-        Mockito.when(bookRepository.getById((book.getId()))).thenReturn(book);
-        Mockito.when(reviewRepository.getByBook(book)).thenReturn(Collections.singletonList(review));
-        Assertions.assertThat(reviewService.getByBookId(book.getId()))
-                .isEqualTo(Stream.of(review).
-                map(Review::toString)
-                .collect(Collectors.toList()));
+    public void testFindByBook() throws DataNotFoundException {
+        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.ofNullable(book));
+        Mockito.when(reviewRepository.findByBook(book)).thenReturn(Collections.singletonList(review));
+        Assertions.assertThat(reviewService.getByBookId(book.getId()).size())
+                .isGreaterThan(0);
     }
 
     @Test
     public void deleteAll() {
-        Mockito.when(reviewRepository.deleteAll()).thenReturn(true);
         Assertions.assertThat(reviewService.deleteAll())
                 .isEqualTo(true);
     }

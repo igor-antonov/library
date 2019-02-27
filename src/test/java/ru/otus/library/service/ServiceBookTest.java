@@ -20,6 +20,7 @@ import ru.otus.library.repository.GenreRepository;
 
 import java.sql.Date;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 
@@ -44,23 +45,25 @@ public class ServiceBookTest {
     @Before
     public void prepare() {
         author = new Author("Иван", "Бунин", Date.valueOf("1870-10-20"));
+        author.setId(1L);
         genre = new Genre("Повесть");
+        genre.setId(2L);
         book = new Book("Вий", author, genre);
         book.setId(5L);
     }
 
     @Test
     public void addNewBook() throws DataNotFoundException {
-        given(authorRepository.getById(1)).willReturn(author);
-        given(genreRepository.getById(2)).willReturn(genre);
-        given(bookRepository.insert(book)).willReturn(0L);
-        Assertions.assertThat(bookService.add("1984", 1, 2))
-                .isEqualTo(0L);
+        given(authorRepository.findById(author.getId())).willReturn(Optional.ofNullable(author));
+        given(genreRepository.findById(genre.getId())).willReturn(Optional.ofNullable(genre));
+        given(bookRepository.save(new Book("1984", author, genre))).willReturn(book);
+        Assertions.assertThat(bookService.add("1984", author.getId(), genre.getId()))
+                .isGreaterThanOrEqualTo(0L);
     }
 
     @Test
     public void testFailureUpdate() {
-        given(authorRepository.getById(2)).willReturn(author);
+        given(authorRepository.findById(2)).willReturn(Optional.of(author));
         try {
             bookService.updateById(7, "Вий", 2, 4);
         }
@@ -71,21 +74,20 @@ public class ServiceBookTest {
 
     @Test
     public void getBookByTitle() throws DataNotFoundException {
-        given(bookRepository.getByTitle("Вий")).willReturn(Collections.singletonList(book));
+        given(bookRepository.findByTitle("Вий")).willReturn(Collections.singletonList(book));
         Assertions.assertThat(bookService.getByTitle("Вий"))
                 .isEqualTo(Collections.singletonList(book.toString()));
     }
 
     @Test
     public void deleteBook() {
-        given(bookRepository.deleteByTitle("Вий")).willReturn(true);
+        given(bookRepository.deleteByTitle("Вий")).willReturn(book.getId());
         Assertions.assertThat(bookService.deleteByTitle("Вий"))
                 .isEqualTo(true);
     }
 
     @Test
     public void deleteAll() {
-        given(bookRepository.deleteAll()).willReturn(true);
         Assertions.assertThat(bookService.deleteAll()).isEqualTo(true);
     }
 }

@@ -9,9 +9,9 @@ import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
 
-import javax.persistence.NoResultException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,51 +28,47 @@ public class BookService {
     }
 
     public long add(String title, long authorId, long genreId) throws DataNotFoundException {
-        Author author = authorRepository.getById(authorId);
-        if (author == null){
+        Optional<Author> authorOpt = authorRepository.findById(authorId);
+        if (!authorOpt.isPresent()){
             throw new DataNotFoundException(String.format("Автор по идентификатору %s не найден", authorId));
         }
-        Genre genre = genreRepository.getById(genreId);
-        if (genre == null){
+        Optional<Genre> genreOpt = genreRepository.findById(genreId);
+        if (!genreOpt.isPresent()){
             throw new DataNotFoundException(String.format("Жанр по идентификатору %s не найден", genreId));
         }
-        return bookRepository.insert(new Book(title, author, genre));
+        return bookRepository.save(
+                new Book(title, authorOpt.get(), genreOpt.get())).getId();
     }
 
     public boolean updateById(long bookId, String title, long authorId, long genreId) throws DataNotFoundException {
-        Author author = authorRepository.getById(authorId);
-        if (author == null){
+        Optional<Author> authorOpt = authorRepository.findById(authorId);
+        if (!authorOpt.isPresent()){
             throw new DataNotFoundException(String.format("Автор по идентификатору %s не найден", authorId));
         }
-        Genre genre = genreRepository.getById(genreId);
-        if (genre == null){
+        Optional<Genre> genreOpt = genreRepository.findById(genreId);
+        if (!genreOpt.isPresent()){
             throw new DataNotFoundException(String.format("Жанр по идентификатору %s не найден", genreId));
         }
-        try {
-            bookRepository.getById(bookId);
-        }
-        catch (DataNotFoundException e)
-        {
+        Optional<Book> bookOpt = bookRepository.findById(bookId);
+        if (!bookOpt.isPresent()){
             throw new DataNotFoundException(String.format("Книга по идентификатору %s не найдена", bookId));
         }
-        return bookRepository.updateById(bookId, new Book(title, author, genre));
+        return bookRepository.updateById(bookId,
+                new Book(title, authorOpt.get(), genreOpt.get())) > 0;
     }
 
     public boolean deleteByTitle(String title){
-        try {
-            return bookRepository.deleteByTitle(title);
-        }
-        catch (NoResultException e){
-            return false;
-        }
+        bookRepository.deleteByTitle(title);
+        return bookRepository.deleteByTitle(title) > 0;
     }
 
     public boolean deleteAll(){
-        return bookRepository.deleteAll();
+        bookRepository.deleteAll();
+        return true;
     }
 
     public List<String> getByTitle(String title) throws DataNotFoundException {
-        List<String> result = bookRepository.getByTitle(title)
+        List<String> result = bookRepository.findByTitle(title)
                 .stream().
                         map(Book::toString)
                 .collect(Collectors.toList());
@@ -85,12 +81,12 @@ public class BookService {
     }
 
     public List<String> getByAuthorId(long authorId) throws DataNotFoundException {
-        Author author = authorRepository.getById(authorId);
-        if (author == null){
+        Optional<Author> authorOpt = authorRepository.findById(authorId);
+        if (!authorOpt.isPresent()){
             return Collections.singletonList(String.format("Автор по идентификатору %d не найден", authorId));
         }
 
-        List<String> result = bookRepository.getByAuthor(author)
+        List<String> result = bookRepository.findByAuthor(authorOpt.get())
                 .stream().
                         map(Book::toString)
                 .collect(Collectors.toList());
@@ -103,12 +99,12 @@ public class BookService {
     }
 
     public List<String> getByGenreName(String genreName) throws DataNotFoundException {
-        Genre genre = genreRepository.getByName(genreName);
-        if (genre == null){
+        Optional<Genre> genreOpt = genreRepository.findByName(genreName);
+        if (!genreOpt.isPresent()){
             return Collections.singletonList(String.format("Жанр %s не найден", genreName));
         }
 
-        List<String> result = bookRepository.getByGenre(genre)
+        List<String> result = bookRepository.findByGenre(genreOpt.get())
                 .stream().
                         map(Book::toString)
                 .collect(Collectors.toList());

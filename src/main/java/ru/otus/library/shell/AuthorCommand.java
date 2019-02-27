@@ -41,9 +41,6 @@ public class AuthorCommand {
         catch (IllegalArgumentException e){
             return "Укажите дату рождения в формате YYYY-MM-DD";
         }
-        catch (DataNotFoundException ex){
-            return ex.getMessage();
-        }
     }
 
     @ShellMethod(value = "Изменение автора", key = "editauthorid")

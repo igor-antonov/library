@@ -5,7 +5,6 @@ import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.repository.AuthorRepository;
 import ru.otus.library.domain.Author;
 
-import javax.persistence.NoResultException;
 import java.sql.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,34 +18,29 @@ public class AuthorService {
     }
 
     public long add(String firstName, String secondName, Date birthday){
-        return authorRepository.insert(new Author(firstName, secondName, birthday));
+        return authorRepository.save(new Author(firstName, secondName, birthday)).getId();
     }
 
-    public boolean updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday)
-            throws DataNotFoundException {
-        return authorRepository.updateBySecondName(oldSecondName, firstName, secondName, birthday);
+    public boolean updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday) {
+        return authorRepository.updateBySecondName(oldSecondName, firstName, secondName, birthday) > 0;
     }
 
     public boolean updateById(int id, String firstName, String secondName, Date birthday){
-        return authorRepository.updateById(id, firstName, secondName, birthday);
+        return authorRepository.updateById(id, firstName, secondName, birthday)>0;
     }
 
     public boolean deleteById(long id){
-        try {
-            return authorRepository.deleteById(id);
-        }
-        catch (NoResultException e){
-            return false;
-        }
+        return authorRepository.deleteById(id)>0;
     }
 
     public boolean deleteAll(){
-        return authorRepository.deleteAll();
+        authorRepository.deleteAll();
+        return true;
     }
 
     public List<String> getByFirstNameAndSecondName(String firstName, String secondName)
             throws DataNotFoundException {
-        List<String> result = authorRepository.getByFirstNameAndSecondName(firstName, secondName)
+        List<String> result = authorRepository.findByFirstNameAndSecondName(firstName, secondName)
                 .stream().
                         map(Author::toString)
                 .collect(Collectors.toList());
@@ -59,7 +53,7 @@ public class AuthorService {
     }
 
     public List<String> getBySecondName(String secondName) throws DataNotFoundException{
-        List<String> result = authorRepository.getBySecondName(secondName)
+        List<String> result = authorRepository.findBySecondName(secondName)
                 .stream().
                         map(Author::toString)
                 .collect(Collectors.toList());
@@ -72,7 +66,7 @@ public class AuthorService {
     }
 
     public List<String> getByBirthday(Date birthday) throws DataNotFoundException{
-        List<String> result = authorRepository.getByBirthday(birthday)
+        List<String> result = authorRepository.findByBirthday(birthday)
                 .stream().
                         map(Author::toString)
                 .collect(Collectors.toList());
@@ -85,7 +79,7 @@ public class AuthorService {
     }
 
     public List<String> getAll() throws DataNotFoundException {
-        List<String> result = authorRepository.getAll()
+        List<String> result = authorRepository.findAll()
                 .stream().
                         map(Author::toString)
                 .collect(Collectors.toList());

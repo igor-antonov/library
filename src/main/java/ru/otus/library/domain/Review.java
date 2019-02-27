@@ -16,7 +16,7 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn(name = "book_id")
     private Book book;
     private String text;

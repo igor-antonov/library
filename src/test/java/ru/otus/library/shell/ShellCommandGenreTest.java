@@ -11,7 +11,6 @@ import org.springframework.shell.jline.InteractiveShellApplicationRunner;
 import org.springframework.shell.jline.ScriptShellApplicationRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Genre;
-import ru.otus.library.repository.GenreRepository;
 import ru.otus.library.service.GenreService;
 
 import static org.mockito.BDDMockito.given;

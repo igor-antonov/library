@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
@@ -33,7 +34,6 @@ public class ReviewRepositoryTest {
     @Autowired
     TestEntityManager tem;
 
-    Long genreId;
     Genre genre;
     Long authorId;
     Author author;
@@ -44,31 +44,31 @@ public class ReviewRepositoryTest {
 
     @Before
     public void prepare() throws DataNotFoundException {
-        genreId = genreRepository.insert(new Genre("Comedian"));
-        genre = tem.find(Genre.class, genreId);
-        authorId = authorRepository.insert(new Author("Иван", "Бунин", Date.valueOf("1870-10-20")));
+        genre = genreRepository.save(new Genre("Comedian"));
+        authorId = authorRepository.save(new Author("Иван", "Бунин", Date.valueOf("1870-10-20"))).getId();
         author = tem.find(Author.class, authorId);
-        bookId = bookRepository.insert(new Book("Сказки", author, genre));
-        book = bookRepository.getById(bookId);
-        reviewId = reviewRepository.insert(new Review(book, "Критик", "норм"));
-        review = reviewRepository.getById(reviewId);
+        bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
+        book = bookRepository.findById(bookId).get();
+        reviewId = reviewRepository.save(new Review(book, "Критик", "норм")).getId();
+        review = reviewRepository.findById(reviewId).get();
     }
 
     @Test
     public void findById(){
-        Assertions.assertThat(reviewRepository.getById(reviewId).getReviewer()).isEqualTo(review.getReviewer());
+        Assertions.assertThat(reviewRepository.findById(reviewId).get().getReviewer()).isEqualTo(review.getReviewer());
     }
 
     @Test
     public void findByBook(){
-        Assertions.assertThat(reviewRepository.getByBook(book).get(0).getReviewer()).isEqualTo(review.getReviewer());
+        Assertions.assertThat(reviewRepository.findByBook(book).get(0).getReviewer()).isEqualTo(review.getReviewer());
     }
 
     @Test
     public void deleteAll(){
         reviewRepository.deleteAll();
-        Assertions.assertThat(reviewRepository.getAll().size()).isEqualTo(0);
-        reviewId = reviewRepository.insert(new Review(book, review.getReviewer(), review.getText()));
+        System.out.println(bookRepository.findAll());
+        Assertions.assertThat(reviewRepository.findAll().size()).isEqualTo(0);
+        reviewId = reviewRepository.save(new Review(book, review.getReviewer(), review.getText())).getId();
         review = tem.find(Review.class, reviewId);
     }
 
@@ -76,24 +76,16 @@ public class ReviewRepositoryTest {
         Assertions.assertThat(reviewRepository.count()).isEqualTo(1);
     }
 
-    @Test
+    @Test(expected = DataIntegrityViolationException.class)
     public void deleteReviewByBookTitle(){
         bookRepository.deleteByTitle(book.getTitle());
-        Assertions.assertThat(reviewRepository.getById(reviewId)).isEqualTo(null);
-        reviewId = reviewRepository.insert(new Review(book, review.getReviewer(), review.getText()));
-        review = tem.find(Review.class, reviewId);
-        bookId = bookRepository.insert(book);
-        book = tem.find(Book.class, bookId);
+        System.out.println(bookRepository.findByTitle(book.getTitle()));
     }
 
-    @Test
+    @Test(expected = DataIntegrityViolationException.class)
     public void deleteReviewByBook(){
         bookRepository.deleteAll();
-        Assertions.assertThat(reviewRepository.getById(reviewId)).isEqualTo(null);
-        reviewId = reviewRepository.insert(new Review(book, review.getReviewer(), review.getText()));
-        review = tem.find(Review.class, reviewId);
-        bookId = bookRepository.insert(book);
-        book = tem.find(Book.class, bookId);
+        System.out.println(bookRepository.findAll());
     }
 
     @Test

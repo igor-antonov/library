@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Genre;
 import ru.otus.library.repository.GenreRepository;
 
-import javax.persistence.NoResultException;
+import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 
@@ -39,9 +39,10 @@ public class ServiceGenreTest {
 
     @Test
     public void addNewGenre(){
-        given(genreRepository.getByName(genre.getName())).willThrow(NoResultException.class);
+        given(genreRepository.findByName(genre.getName())).willReturn(Optional.empty());
+        given(genreRepository.save(new Genre("антиутопия"))).willReturn(genre);
         Assertions.assertThat(genreService.add("антиутопия"))
-                .isEqualTo(0L);
+                .isEqualTo(genre.getId());
     }
 
     @Test
@@ -52,17 +53,15 @@ public class ServiceGenreTest {
 
     @Test
     public void testUpdate() {
-        given(genreRepository.updateByName("антиутопия", "повесть"))
-                .willReturn(true);
-
+        given(genreRepository.updateByName("антиутопия", "повесть")).willReturn(1);
         Assertions.assertThat(genreService.update("антиутопия", "повесть"))
                 .isEqualTo(true);
     }
 
     @Test
     public void testFindByName() {
-        given(genreRepository.getByName(genre.getName()))
-                .willReturn(genre);
+        given(genreRepository.findByName(genre.getName()))
+                .willReturn(java.util.Optional.ofNullable(genre));
 
         Assertions.assertThat(genreService.getByName(genre.getName()))
                 .isEqualTo(genre.toString());
@@ -70,7 +69,6 @@ public class ServiceGenreTest {
 
     @Test
     public void deleteAll() {
-        given(genreRepository.deleteAll()).willReturn(true);
         Assertions.assertThat(genreService.deleteAll())
                 .isEqualTo(true);
     }
