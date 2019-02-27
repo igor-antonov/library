@@ -2,9 +2,10 @@ package ru.otus.library.shell;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.service.GenreService;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ShellComponent
@@ -18,7 +19,7 @@ public class GenreCommand {
 
     @ShellMethod(value = "Добавление жанра", key = "newgenre")
     public String add(String genreName) {
-        int result = genreService.add(genreName);
+        long result = genreService.add(genreName);
         if (result == -1){
             return String.format("Жанр %s уже существует" , genreName);
         }
@@ -60,13 +61,11 @@ public class GenreCommand {
 
     @ShellMethod(value = "Поиск всех жанров", key = "getallgenres")
     public List<String> getAll(){
-        List<String> genres = new ArrayList<>();
-        if (genreService.getAll() != null){
+        try {
             return genreService.getAll();
         }
-        else {
-            genres.add("Результаты не найдены");
-            return genres;
+        catch (DataNotFoundException ex){
+            return Collections.singletonList(ex.getMessage());
         }
     }
 

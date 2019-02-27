@@ -1,106 +1,103 @@
 package ru.otus.library.service;
 
 import org.springframework.stereotype.Service;
-import ru.otus.library.dao.AuthorDAO;
+import ru.otus.library.exception.DataNotFoundException;
+import ru.otus.library.repository.AuthorRepository;
 import ru.otus.library.domain.Author;
 
+import javax.persistence.NoResultException;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthorService {
-    private final AuthorDAO authorDAO;
+    private final AuthorRepository authorRepository;
 
-    public AuthorService(AuthorDAO authorDAO){
-        this.authorDAO = authorDAO;
+    public AuthorService(AuthorRepository authorRepository){
+        this.authorRepository = authorRepository;
     }
 
-    public int add(String firstName, String secondName, Date birthday){
-        return authorDAO.insert(firstName, secondName, birthday);
+    public long add(String firstName, String secondName, Date birthday){
+        return authorRepository.insert(new Author(firstName, secondName, birthday));
     }
 
-    public int updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday){
-        return authorDAO.updateBySecondName(oldSecondName, firstName, secondName, birthday);
+    public boolean updateBySecondName(String oldSecondName, String firstName, String secondName, Date birthday)
+            throws DataNotFoundException {
+        return authorRepository.updateBySecondName(oldSecondName, firstName, secondName, birthday);
     }
 
-    public int updateById(int id, String firstName, String secondName, Date birthday){
-        if (authorDAO.getById(id) != null) {
-            return authorDAO.updateById(id, firstName, secondName, birthday);
+    public boolean updateById(int id, String firstName, String secondName, Date birthday){
+        return authorRepository.updateById(id, firstName, secondName, birthday);
+    }
+
+    public boolean deleteById(long id){
+        try {
+            return authorRepository.deleteById(id);
         }
-        else {
-            return -1;
-        }
-    }
-
-    public boolean deleteById(int id){
-        if (authorDAO.getById(id) != null){
-            authorDAO.deleteById(id);
-            return true;
-        }
-        else {
+        catch (NoResultException e){
             return false;
         }
     }
 
     public boolean deleteAll(){
-        authorDAO.deleteAll();
-        return true;
+        return authorRepository.deleteAll();
     }
 
-    public List<String> getByFirstNameAndSecondName(String firstName, String secondName){
-        ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getByFirstNameAndSecondName(firstName, secondName)){
-            authors.add(author.toString());
-        }
-        if (authors.size()>0){
-            return authors;
+    public List<String> getByFirstNameAndSecondName(String firstName, String secondName)
+            throws DataNotFoundException {
+        List<String> result = authorRepository.getByFirstNameAndSecondName(firstName, secondName)
+                .stream().
+                        map(Author::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
-            return null;
+            return result;
         }
     }
 
-    public List<String> getBySecondName(String secondName){
-        ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getBySecondName(secondName)){
-            authors.add(author.toString());
-        }
-        if (authors.size()>0){
-            return authors;
+    public List<String> getBySecondName(String secondName) throws DataNotFoundException{
+        List<String> result = authorRepository.getBySecondName(secondName)
+                .stream().
+                        map(Author::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
-            return null;
+            return result;
         }
     }
 
-    public ArrayList<String> getByBirthday(Date birthday){
-        ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getByBirthday(birthday)){
-            authors.add(author.toString());
-        }
-        if (authors.size()>1){
-            return authors;
+    public List<String> getByBirthday(Date birthday) throws DataNotFoundException{
+        List<String> result = authorRepository.getByBirthday(birthday)
+                .stream().
+                        map(Author::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
-            return null;
+            return result;
         }
     }
 
-    public List<String> getAll(){
-        ArrayList<String> authors = new ArrayList<>();
-        for (Author author: authorDAO.getAll()){
-            authors.add(author.toString());
-        }
-        if (authors.size()>0){
-            return authors;
+    public List<String> getAll() throws DataNotFoundException {
+        List<String> result = authorRepository.getAll()
+                .stream().
+                        map(Author::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
-            return null;
+            return result;
         }
     }
 
-    public int getCount(){
-        return authorDAO.count();
+    public long getCount(){
+        return authorRepository.count();
     }
 }

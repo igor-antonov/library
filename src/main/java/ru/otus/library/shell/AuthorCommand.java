@@ -1,16 +1,20 @@
 package ru.otus.library.shell;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.service.AuthorService;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ShellComponent
 public class AuthorCommand {
 
+    @Autowired
     private final AuthorService authorService;
 
     public AuthorCommand(AuthorService authorService){
@@ -31,31 +35,25 @@ public class AuthorCommand {
     @ShellMethod(value = "Изменение автора", key = "editauthor")
     public String updateBySecondName(String oldSecondName, String firstName, String secondName, String birthday){
         try {
-            int result = authorService.updateBySecondName(oldSecondName, firstName, secondName, Date.valueOf(birthday));
-            if (result >0){
-                return String.format("Автор с фамилией %s изменен", oldSecondName);
-            }
-            else if (result == -1){
-                return "";
-            }
-            else {
-                return String.format("Автор с фамилией %s не найден", secondName);
-            }
+            authorService.updateBySecondName(oldSecondName, firstName, secondName, Date.valueOf(birthday));
+            return String.format("Автор с фамилией %s изменен", oldSecondName);
         }
         catch (IllegalArgumentException e){
             return "Укажите дату рождения в формате YYYY-MM-DD";
+        }
+        catch (DataNotFoundException ex){
+            return ex.getMessage();
         }
     }
 
     @ShellMethod(value = "Изменение автора", key = "editauthorid")
     public String updateById(String id, String firstName, String secondName, String birthday){
         try {
-            int result = authorService.updateById(Integer.valueOf(id), firstName, secondName, Date.valueOf(birthday));
-            if (result != -1){
-                return String.format("Автор с идентификатором %s изменен", result);
+            if (authorService.updateById(Integer.valueOf(id), firstName, secondName, Date.valueOf(birthday))){
+                return String.format("Автор с идентификатором %s изменен", id);
             }
             else {
-                return String.format("Автор с фамилией %s не найден", secondName);
+                return String.format("Автор с идентификатором %s не найден", id);
             }
         }
         catch (IllegalArgumentException e){
@@ -64,12 +62,17 @@ public class AuthorCommand {
     }
 
     @ShellMethod(value = "Удаление автора по идентификатору", key = "deleteauthor")
-    public String deleteById(int id){
-        if (authorService.deleteById(id)){
-            return String.format("Автор с идентификатором %d удален", id);
+    public String deleteById(String id){
+        try{
+            if (authorService.deleteById(Integer.valueOf(id))){
+                return String.format("Автор с идентификатором %s удален", id);
+            }
+            else {
+                return String.format("Автор с идентификатором %s не найден", id);
+            }
         }
-        else {
-            return String.format("Автор с идентификатором %d не найден", id);
+        catch (IllegalArgumentException ex){
+            return "идентификаторы должны быть в числовом формате";
         }
     }
 
@@ -78,30 +81,28 @@ public class AuthorCommand {
         if (authorService.deleteAll()){
             return "таблица авторов очищена";
         }
-        return "при удалении произошла ошибка";
+        else {
+            return "при удалении произошла ошибка";
+        }
     }
 
     @ShellMethod(value = "Поиск автора по имени и фамилии", key = "getauthorsfs")
     public List<String> getByFirstNameAndSecondName(String firstName, String secondName){
-        List<String> authors = new ArrayList<>();
-        if (authorService.getByFirstNameAndSecondName(firstName, secondName) != null){
+        try {
             return authorService.getByFirstNameAndSecondName(firstName, secondName);
         }
-        else {
-            authors.add("Результаты не найдены");
-            return authors;
+        catch (DataNotFoundException ex){
+            return Collections.singletonList(ex.getMessage());
         }
     }
 
     @ShellMethod(value = "Поиск автора по фамилии", key = "getauthorss")
     public List<String> getBySecondName(String secondName){
-        List<String> authors = new ArrayList<>();
-        if (authorService.getBySecondName(secondName) != null){
+        try {
             return authorService.getBySecondName(secondName);
         }
-        else {
-            authors.add("Результаты не найдены");
-            return authors;
+        catch (DataNotFoundException ex){
+            return Collections.singletonList(ex.getMessage());
         }
     }
 
@@ -109,35 +110,29 @@ public class AuthorCommand {
     public List<String> getByBirthday(String birthday){
         List<String> authors = new ArrayList<>();
         try{
-            if (authorService.getByBirthday(Date.valueOf(birthday)) != null){
-                return authorService.getByBirthday(Date.valueOf(birthday));
-            }
-            else {
-                authors.add("Результаты не найдены");
-                return authors;
-            }
+            return authorService.getByBirthday(Date.valueOf(birthday));
         }
         catch (IllegalArgumentException e){
             authors.add("Укажите дату рождения в формате YYYY-MM-DD");
             return authors;
         }
+        catch (DataNotFoundException ex){
+            return Collections.singletonList(ex.getMessage());
+        }
     }
 
     @ShellMethod(value = "Найти всех авторов", key = "getallauthors")
     public List<String> getAll(){
-        List<String> authors = new ArrayList<>();
-        if (authorService.getAll() != null){
+        try {
             return authorService.getAll();
         }
-        else {
-            authors.add("Результаты не найдены");
-            return authors;
+        catch (DataNotFoundException ex){
+            return Collections.singletonList(ex.getMessage());
         }
     }
 
     @ShellMethod(value = "Показать количество авторов", key = "getauthorsc")
     public String getCount(){
-        return "Количество жанров: " + authorService.getCount();
+        return "Количество авторов: " + authorService.getCount();
     }
-
 }

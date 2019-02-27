@@ -1,77 +1,73 @@
 package ru.otus.library.service;
 
 import org.springframework.stereotype.Service;
-import ru.otus.library.dao.GenreDAO;
+import ru.otus.library.exception.DataNotFoundException;
+import ru.otus.library.repository.GenreRepository;
 import ru.otus.library.domain.Genre;
-import java.util.ArrayList;
+
+import javax.persistence.NoResultException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GenreService {
 
-    private final GenreDAO genreDAO;
+    private final GenreRepository genreRepository;
 
-    public GenreService(GenreDAO genreDAO){
-        this.genreDAO = genreDAO;
+    public GenreService(GenreRepository genreRepository) {
+        this.genreRepository = genreRepository;
     }
 
-    public int add(String genreName) {
-        if (genreDAO.getByName(genreName) != null){
-            return -1;
-        }
-        else {
-            return genreDAO.insert(new Genre(genreName));
-        }
-    }
-
-    public boolean update(String oldName, String newName){
-        if (genreDAO.getByName(oldName) != null) {
-            genreDAO.updateByName(oldName, newName);
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public boolean delete(String name){
-        if (genreDAO.getByName(name) != null) {
-            genreDAO.deleteByName(name);
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public boolean deleteAll(){
-        genreDAO.deleteAll();
-        return true;
-    }
-
-    public List<String> getAll(){
-        ArrayList<String> genres = new ArrayList<>();
-        for (Genre genre: genreDAO.getAll()){
-            genres.add(genre.toString());
-        }
-        if (genres.size()>0){
-            return genres;
-        }
-        else {
-            return null;
-        }
-    }
-
-    public String getByName(String name){
+    public long add(String genreName) {
         try {
-            return genreDAO.getByName(name).toString();
+            genreRepository.getByName(genreName);
+            return -1;
+        } catch (NoResultException e) {
+            return genreRepository.insert(new Genre(genreName));
         }
-        catch (NullPointerException e){
+    }
+
+    public boolean update(String oldName, String newName) {
+        try {
+            return genreRepository.updateByName(oldName, newName);
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
+    public boolean delete(String name) {
+        try {
+            return genreRepository.deleteByName(name);
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
+    public boolean deleteAll() {
+        return genreRepository.deleteAll();
+    }
+
+    public List<String> getAll() throws DataNotFoundException {
+        List<String> result = genreRepository.getAll()
+                .stream().
+                        map(Genre::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()) {
+            throw new DataNotFoundException("Результаты не найдены");
+        } else {
+            return result;
+        }
+    }
+
+    public String getByName(String name) {
+        try {
+            return genreRepository.getByName(name).toString();
+        } catch (NullPointerException e) {
             return String.format("Жанр %s не найден", name);
         }
     }
 
-    public int getCount(){
-        return genreDAO.count();
+    public long getCount(){
+        return genreRepository.count();
     }
 }

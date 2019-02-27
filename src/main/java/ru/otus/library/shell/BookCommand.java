@@ -2,8 +2,9 @@ package ru.otus.library.shell;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.service.BookService;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ShellComponent
@@ -16,26 +17,33 @@ public class BookCommand {
     }
 
     @ShellMethod(value = "Добавление книги", key = "newbook")
-    public String add(String title, int authorId, int genreId){
-        int result = bookService.add(title, authorId, genreId);
-
-        switch (result){
-            case -1: return String.format("Автор по идентификатору %d не найден", authorId);
-            case -2: return String.format("Жанр по идентификатору %d не найден", genreId);
-            default: return String.format("Добавлена книга %s с идентификатором %d", title, result);
+    public String add(String title, String authorId, String genreId){
+        try {
+            long result = bookService.add(title, Integer.valueOf(authorId), Integer.valueOf(genreId));
+            return String.format("Добавлена книга %s с идентификатором %d", title, result);
         }
+        catch (IllegalArgumentException ex){
+            return "Идентификаторы должны быть в числовом формате";
+        }
+        catch (DataNotFoundException e){
+            return e.getMessage();
+        }
+
     }
 
     @ShellMethod(value = "Изменение книги", key = "editbook")
-    public String updateByTitle(int bookId, String title, int authorId, int genreId){
-        int result = bookService.updateById(bookId, title, authorId, genreId);
-
-        switch (result){
-            case -1: return String.format("Автор по идентификатору %d не найден", authorId);
-            case -2: return String.format("Жанр по идентификатору %d не найден", genreId);
-            case -3: return String.format("Книга с идентификатором %d не найдена", bookId);
-            default: return String.format("Книга с идентификатором %d изменена", bookId);
+    public String updateById(String bookId, String title, String authorId, String genreId) {
+        try {bookService.updateById(Integer.valueOf(bookId), title,
+                    Integer.valueOf(authorId), Integer.valueOf(genreId));
+            return String.format("Книга с идентификатором %s изменена", bookId);
         }
+        catch (IllegalArgumentException ex) {
+            return "Идентификаторы должны быть в числовом формате";
+        }
+        catch (DataNotFoundException e){
+            return e.getMessage();
+        }
+
     }
 
     @ShellMethod(value = "Удаление книги по названию", key = "deletebook")
@@ -51,7 +59,7 @@ public class BookCommand {
     @ShellMethod(value = "Удаление всех книг", key = "deletebookall")
     public String deleteAll(){
         if (bookService.deleteAll()){
-            return String.format("Таблица книг очищена");
+            return "Таблица книг очищена";
         }
         else {
             return "при удалении произошла ошибка";
@@ -60,36 +68,33 @@ public class BookCommand {
 
     @ShellMethod(value = "Поиск книг по названию", key = "getbooksbyt")
     public List<String> getByTitle(String title){
-        List<String> books = new ArrayList<>();
-        if (bookService.getByTitle(title) != null){
+        try {
             return bookService.getByTitle(title);
         }
-        else {
-            books.add("Результаты не найдены");
-            return books;
+        catch (DataNotFoundException ex){
+            return Collections.singletonList(ex.getMessage());
         }
     }
 
     @ShellMethod(value = "Поиск книг по автору", key = "getbooksbya")
-    public List<String> getByAuthorId(int authorId){
-        ArrayList<String> books = new ArrayList<>();
-        if (bookService.getByAuthorId(authorId) != null){
-            return bookService.getByAuthorId(authorId);
+    public List<String> getByAuthorId(String authorId){
+        try {
+            return bookService.getByAuthorId(Integer.valueOf(authorId));
         }
-        else {
-            books.add("Результаты не найдены");
-            return books;
+        catch (IllegalArgumentException ex){
+            return Collections.singletonList("Идентификаторы должны быть в числовом формате");
+        }
+        catch (DataNotFoundException ex){
+            return Collections.singletonList(ex.getMessage());
         }
     }
     @ShellMethod(value = "Поиск книг по жанру", key = "getbooksbyg")
     public List<String> getByGenreName(String genreName){
-        ArrayList<String> books = new ArrayList<>();
-        if (bookService.getByGenreName(genreName) != null){
+        try {
             return bookService.getByGenreName(genreName);
         }
-        else {
-            books.add("Результаты не найдены");
-            return books;
+        catch (DataNotFoundException ex){
+            return Collections.singletonList(ex.getMessage());
         }
     }
 }

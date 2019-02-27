@@ -1,118 +1,122 @@
 package ru.otus.library.service;
 
 import org.springframework.stereotype.Service;
-import ru.otus.library.dao.AuthorDAO;
-import ru.otus.library.dao.BookDAO;
-import ru.otus.library.dao.GenreDAO;
+import ru.otus.library.exception.DataNotFoundException;
+import ru.otus.library.repository.AuthorRepository;
+import ru.otus.library.repository.BookRepository;
+import ru.otus.library.repository.GenreRepository;
 import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
 
-import java.util.ArrayList;
+import javax.persistence.NoResultException;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
 
-    private final BookDAO bookDAO;
-    private final GenreDAO genreDAO;
-    private final AuthorDAO authorDAO;
+    private final BookRepository bookRepository;
+    private final GenreRepository genreRepository;
+    private final AuthorRepository authorRepository;
 
-    public BookService(BookDAO bookDAO, GenreDAO genreDAO, AuthorDAO authorDAO) {
-        this.bookDAO = bookDAO;
-        this.genreDAO = genreDAO;
-        this.authorDAO = authorDAO;
+    public BookService(BookRepository bookRepository, GenreRepository genreRepository, AuthorRepository authorRepository) {
+        this.bookRepository = bookRepository;
+        this.genreRepository = genreRepository;
+        this.authorRepository = authorRepository;
     }
 
-    public int add(String title, int authorId, int genreId){
-        Author author = authorDAO.getById(authorId);
+    public long add(String title, long authorId, long genreId) throws DataNotFoundException {
+        Author author = authorRepository.getById(authorId);
         if (author == null){
-            return -1;
+            throw new DataNotFoundException(String.format("Автор по идентификатору %s не найден", authorId));
         }
-        Genre genre = genreDAO.getById(genreId);
+        Genre genre = genreRepository.getById(genreId);
         if (genre == null){
-            return -2;
+            throw new DataNotFoundException(String.format("Жанр по идентификатору %s не найден", genreId));
         }
-        return bookDAO.insert(new Book(title, author, genre));
+        return bookRepository.insert(new Book(title, author, genre));
     }
 
-    public int updateById(int bookId, String title, int authorId, int genreId){
-        Author author = authorDAO.getById(authorId);
+    public boolean updateById(long bookId, String title, long authorId, long genreId) throws DataNotFoundException {
+        Author author = authorRepository.getById(authorId);
         if (author == null){
-            return -1;
+            throw new DataNotFoundException(String.format("Автор по идентификатору %s не найден", authorId));
         }
-        Genre genre = genreDAO.getById(genreId);
+        Genre genre = genreRepository.getById(genreId);
         if (genre == null){
-            return -2;
+            throw new DataNotFoundException(String.format("Жанр по идентификатору %s не найден", genreId));
         }
-        if (bookDAO.getById(bookId) == null) {
-            return -3;
+        try {
+            bookRepository.getById(bookId);
         }
-        return bookDAO.updateById(bookId, new Book(title, author, genre));
+        catch (DataNotFoundException e)
+        {
+            throw new DataNotFoundException(String.format("Книга по идентификатору %s не найдена", bookId));
+        }
+        return bookRepository.updateById(bookId, new Book(title, author, genre));
     }
 
     public boolean deleteByTitle(String title){
-        if (bookDAO.getByTitle(title).size()>0){
-            bookDAO.deleteByTitle(title);
-            return true;
+        try {
+            return bookRepository.deleteByTitle(title);
         }
-        else {
+        catch (NoResultException e){
             return false;
         }
     }
 
     public boolean deleteAll(){
-        bookDAO.deleteAll();
-        return true;
+        return bookRepository.deleteAll();
     }
 
-    public List<String> getByTitle(String title){
-        ArrayList<String> books = new ArrayList<>();
-        for (Book book: bookDAO.getByTitle(title)){
-            books.add(book.toString());
-        }
-        if (books.size()>0){
-            return books;
+    public List<String> getByTitle(String title) throws DataNotFoundException {
+        List<String> result = bookRepository.getByTitle(title)
+                .stream().
+                        map(Book::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
-            return null;
+            return result;
         }
     }
 
-    public List<String> getByAuthorId(int authorId){
-        ArrayList<String> books = new ArrayList<>();
-        Author author = authorDAO.getById(authorId);
+    public List<String> getByAuthorId(long authorId) throws DataNotFoundException {
+        Author author = authorRepository.getById(authorId);
         if (author == null){
-            books.add(String.format("Автор по идентификатору %d не найден", authorId));
-            return books;
+            return Collections.singletonList(String.format("Автор по идентификатору %d не найден", authorId));
         }
-        for (Book book: bookDAO.getByAuthor(author)){
-            books.add(book.toString());
-        }
-        if (books.size()>0){
-            return books;
+
+        List<String> result = bookRepository.getByAuthor(author)
+                .stream().
+                        map(Book::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
-            return null;
+            return result;
         }
     }
 
-    public List<String> getByGenreName(String genreName){
-        ArrayList<String> books = new ArrayList<>();
-        Genre genre = genreDAO.getByName(genreName);
+    public List<String> getByGenreName(String genreName) throws DataNotFoundException {
+        Genre genre = genreRepository.getByName(genreName);
         if (genre == null){
-            books.add(String.format("Жанр %s не найден", genreName));
-            return books;
+            return Collections.singletonList(String.format("Жанр %s не найден", genreName));
         }
 
-        for (Book book: bookDAO.getByGenre(genre)){
-            books.add(book.toString());
-        }
-        if (books.size()>0){
-            return books;
+        List<String> result = bookRepository.getByGenre(genre)
+                .stream().
+                        map(Book::toString)
+                .collect(Collectors.toList());
+        if (result.isEmpty()){
+            throw new DataNotFoundException("Результаты не найдены");
         }
         else {
-            return null;
+            return result;
         }
     }
 }

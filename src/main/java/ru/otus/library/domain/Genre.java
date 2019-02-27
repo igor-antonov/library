@@ -1,18 +1,23 @@
 package ru.otus.library.domain;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "genres")
 public class Genre {
 
-    @Getter
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @Getter
+
+    @Column(name = "genre_name", unique = true)
     private String name;
 
-    public Genre(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
     public Genre(String name) {
         this.name = name;
     }
