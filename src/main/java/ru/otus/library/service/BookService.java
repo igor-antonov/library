@@ -1,6 +1,7 @@
 package ru.otus.library.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.repository.AuthorRepository;
 import ru.otus.library.repository.BookRepository;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class BookService {
 
     private final BookRepository bookRepository;
@@ -57,8 +59,23 @@ public class BookService {
                 new Book(title, authorOpt.get(), genreOpt.get())) > 0;
     }
 
+    public boolean updateById(long bookId, Book book) throws DataNotFoundException {
+        Optional<Author> authorOpt = authorRepository.findById(book.getAuthor().getId());
+        if (!authorOpt.isPresent()){
+            throw new DataNotFoundException(String.format("Автор по идентификатору %s не найден", book.getAuthor().getId()));
+        }
+        Optional<Genre> genreOpt = genreRepository.findById(book.getGenre().getId());
+        if (!genreOpt.isPresent()){
+            throw new DataNotFoundException(String.format("Жанр по идентификатору %s не найден", book.getGenre().getId()));
+        }
+        Optional<Book> bookOpt = bookRepository.findById(bookId);
+        if (!bookOpt.isPresent()){
+            throw new DataNotFoundException(String.format("Книга по идентификатору %s не найдена", bookId));
+        }
+        return bookRepository.updateById(bookId, book) > 0;
+    }
+
     public boolean deleteByTitle(String title){
-        bookRepository.deleteByTitle(title);
         return bookRepository.deleteByTitle(title) > 0;
     }
 

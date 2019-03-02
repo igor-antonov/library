@@ -62,14 +62,14 @@ public class ServiceBookTest {
     }
 
     @Test
-    public void testFailureUpdate() {
-        given(authorRepository.findById(2)).willReturn(Optional.of(author));
-        try {
-            bookService.updateById(7, "Вий", 2, 4);
-        }
-        catch (DataNotFoundException ex){
-            Assertions.assertThat("Жанр по идентификатору 4 не найден").isEqualTo(ex.getMessage());
-        }
+    public void testUpdate() throws DataNotFoundException {
+        Book bookNew = new Book("Цветы для Элджернона", author, genre);
+        bookNew.setId(9L);
+        given(authorRepository.findById(author.getId())).willReturn(Optional.of(author));
+        given(genreRepository.findById(genre.getId())).willReturn(Optional.of(genre));
+        given(bookRepository.findById(5L)).willReturn(Optional.ofNullable(book));
+        given(bookRepository.updateById(book.getId(), bookNew)).willReturn(9);
+        Assertions.assertThat(bookService.updateById(book.getId(), bookNew)).isEqualTo(true);
     }
 
     @Test

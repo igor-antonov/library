@@ -31,6 +31,7 @@ public class GenreRepositoryTest {
     public void prepare(){
         genreId = genreRepository.save(new Genre("Comedian")).getId();
         genre = tem.find(Genre.class, genreId);
+
     }
 
     @Test

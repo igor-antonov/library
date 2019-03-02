@@ -52,21 +52,23 @@ public class ServiceReviewTest {
 
     @Test
     public void addNewReview() {
+        Review reviewNew = new Review(book,"Петр", "Написал");
+        reviewNew.setId(3L);
         Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.ofNullable(book));
-        Mockito.when(reviewRepository.save(new Review(book, review.getReviewer(), review.getText())))
+        Mockito.when(reviewRepository.save(reviewNew))
                 .thenReturn(review);
-        Assertions.assertThat(reviewService.add(book.getId(), review.getReviewer(), review.getText()))
-                .isGreaterThanOrEqualTo(0L);
+        Assertions.assertThat(reviewService.add(book.getId(), reviewNew))
+                .isGreaterThanOrEqualTo(3L);
     }
 
     @Test
     public void testUpdate() {
+        Review reviewNew = new Review(book,"Петр", "Написал");
+        reviewNew.setId(3L);
         Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.ofNullable(book));
-        Mockito.when(reviewRepository.updateById(7,
-                new Review(book, "Иван", "Плохо")))
-                .thenReturn(7);
+        Mockito.when(reviewRepository.updateById(1, reviewNew)).thenReturn(3);
         Assertions.assertThat(reviewService.updateById(
-                7, book.getId(), "Иван", "Плохо"))
+                1, reviewNew))
                 .isEqualTo(true);
     }
 

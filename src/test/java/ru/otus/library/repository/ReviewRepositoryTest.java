@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
@@ -34,18 +33,17 @@ public class ReviewRepositoryTest {
     @Autowired
     TestEntityManager tem;
 
-    Genre genre;
-    Long authorId;
-    Author author;
-    Long bookId;
-    Book book;
-    Long reviewId;
-    Review review;
+    private Genre genre;
+    private Author author;
+    private Long bookId;
+    private Book book;
+    private Long reviewId;
+    private Review review;
 
     @Before
     public void prepare() throws DataNotFoundException {
         genre = genreRepository.save(new Genre("Comedian"));
-        authorId = authorRepository.save(new Author("Иван", "Бунин", Date.valueOf("1870-10-20"))).getId();
+        Long authorId = authorRepository.save(new Author("Иван", "Бунин", Date.valueOf("1870-10-20"))).getId();
         author = tem.find(Author.class, authorId);
         bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
         book = bookRepository.findById(bookId).get();
@@ -60,6 +58,8 @@ public class ReviewRepositoryTest {
 
     @Test
     public void findByBook(){
+        System.out.println("reviewRepository = " + reviewRepository.findAll());
+        System.out.println("bookRepository = " + bookRepository.findAll());
         Assertions.assertThat(reviewRepository.findByBook(book).get(0).getReviewer()).isEqualTo(review.getReviewer());
     }
 
@@ -76,16 +76,26 @@ public class ReviewRepositoryTest {
         Assertions.assertThat(reviewRepository.count()).isEqualTo(1);
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void deleteReviewByBookTitle(){
+        Assertions.assertThat(reviewRepository.findByBook(book).size()).isEqualTo(1);
         bookRepository.deleteByTitle(book.getTitle());
-        System.out.println(bookRepository.findByTitle(book.getTitle()));
+        Assertions.assertThat(reviewRepository.findByBook(book).size()).isEqualTo(0);
+        bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
+        book = bookRepository.findById(bookId).get();
+        reviewId = reviewRepository.save(new Review(book, "Критик", "норм")).getId();
+        review = reviewRepository.findById(reviewId).get();
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void deleteReviewByBook(){
+        Assertions.assertThat(reviewRepository.findAll().size()).isEqualTo(1);
         bookRepository.deleteAll();
-        System.out.println(bookRepository.findAll());
+        Assertions.assertThat(reviewRepository.findAll().size()).isEqualTo(0);
+        bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
+        book = bookRepository.findById(bookId).get();
+        reviewId = reviewRepository.save(new Review(book, "Критик", "норм")).getId();
+        review = reviewRepository.findById(reviewId).get();
     }
 
     @Test

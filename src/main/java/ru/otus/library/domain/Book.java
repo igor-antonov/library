@@ -2,6 +2,8 @@ package ru.otus.library.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -24,7 +26,8 @@ public class Book {
     @JoinColumn(name = "genre_id")
     private Genre genre;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "book")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Review> reviews = new ArrayList<>();
 
     public Book(String title, Author author, Genre genre) {
