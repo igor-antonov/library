@@ -3,6 +3,7 @@ spring:
     url: jdbc:mysql://localhost:3306/spring?characterEncoding=UTF8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Europe/Moscow
     username: otus
     password: otus
+    initialization-mode: never
   jpa:
     properties:
       hibernate:

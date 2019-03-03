@@ -1,3 +1,7 @@
-sping:
+spring:
   datasource:
     platform: h2
+    initialization-mode: never
+  jpa:
+    hibernate:
+      ddl-auto: update
