@@ -8,3 +8,5 @@ spring:
       hibernate:
         id:
           new_generator_mappings: false
+    hibernate:
+      ddl-auto: update

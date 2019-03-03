@@ -275,3 +275,12 @@
 1551544074955:deletebook 33
 1551544161881:deletebook 33f
 1551544174019:deletebook skazki
+1551601785397:newgenre 123
+1551602514052:newgenre comedian
+1551602522974:stacktrace
+1551602667518:newgenre comedian
+1551607521675:newreview 1 Vasya good
+1551607558136:getreviewsbyb 1
+1551607602746:newreview 1 Qwe bad
+1551607618083:getreviewsbyb 2
+1551607625318:getreviewsbyb 1

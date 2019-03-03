@@ -72,30 +72,10 @@ public class ReviewRepositoryTest {
         review = tem.find(Review.class, reviewId);
     }
 
+    @Test
     public void count(){
+        System.out.println("reviewRepository = " + reviewRepository.findAll());
         Assertions.assertThat(reviewRepository.count()).isEqualTo(1);
-    }
-
-    @Test
-    public void deleteReviewByBookTitle(){
-        Assertions.assertThat(reviewRepository.findByBook(book).size()).isEqualTo(1);
-        bookRepository.deleteByTitle(book.getTitle());
-        Assertions.assertThat(reviewRepository.findByBook(book).size()).isEqualTo(0);
-        bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
-        book = bookRepository.findById(bookId).get();
-        reviewId = reviewRepository.save(new Review(book, "Критик", "норм")).getId();
-        review = reviewRepository.findById(reviewId).get();
-    }
-
-    @Test
-    public void deleteReviewByBook(){
-        Assertions.assertThat(reviewRepository.findAll().size()).isEqualTo(1);
-        bookRepository.deleteAll();
-        Assertions.assertThat(reviewRepository.findAll().size()).isEqualTo(0);
-        bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
-        book = bookRepository.findById(bookId).get();
-        reviewId = reviewRepository.save(new Review(book, "Критик", "норм")).getId();
-        review = reviewRepository.findById(reviewId).get();
     }
 
     @Test
