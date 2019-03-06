@@ -4,8 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,9 +21,6 @@ public class Book {
     @OneToOne
     @JoinColumn(name = "genre_id")
     private Genre genre;
-
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
-    private List<Review> reviews = new ArrayList<>();
 
     public Book(String title, Author author, Genre genre) {
         this.title = title;

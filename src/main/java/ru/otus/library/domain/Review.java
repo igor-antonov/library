@@ -17,7 +17,6 @@ public class Review {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "book_id")
     private Book book;
     private String text;
     private String reviewer;

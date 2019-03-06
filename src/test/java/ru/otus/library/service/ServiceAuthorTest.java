@@ -36,7 +36,7 @@ public class ServiceAuthorTest {
     @Before
     public void prepare(){
         author = new Author("Иван", "Бунин", Date.valueOf("1870-10-20"));
-        author.setId(5L);
+        author.setId(author.getId());
     }
 
     @Test
@@ -48,17 +48,18 @@ public class ServiceAuthorTest {
 
     @Test
     public void addNewAuthor() {
-        given(authorRepository.insert(author))
-                .willReturn(author.getId());
+        given(authorRepository.save(
+                new Author(author.getFirstName(), author.getSecondName(), author.getBirthday())))
+                .willReturn(author);
         Assertions.assertThat(authorService.add("Иван", "Бунин", Date.valueOf("1870-10-20")))
-                .isEqualTo(0L);
+                .isGreaterThanOrEqualTo(0L);
     }
 
     @Test
     public void updateAuthor() throws DataNotFoundException {
         given(authorRepository.updateBySecondName("Бунин",
                 "Николай", "Гоголь", Date.valueOf("1809-03-20")))
-                .willReturn(true);
+                .willReturn(1);
         Assertions.assertThat(authorService.updateBySecondName("Бунин",
                 "Николай", "Гоголь", Date.valueOf("1809-03-20")))
                 .isEqualTo(true);
@@ -66,7 +67,7 @@ public class ServiceAuthorTest {
 
     @Test
     public void findBySecondName() throws DataNotFoundException {
-        given(authorRepository.getBySecondName("Бунин"))
+        given(authorRepository.findBySecondName("Бунин"))
                 .willReturn(Collections.singletonList(author));
         Assertions.assertThat(authorService.getBySecondName("Бунин"))
                 .isEqualTo(Collections.singletonList(author.toString()));
@@ -74,15 +75,13 @@ public class ServiceAuthorTest {
 
     @Test
     public void deleteAuthorById(){
-        given(authorRepository.deleteById(1)).willReturn(true);
+        given(authorRepository.deleteById(1)).willReturn(1);
         Assertions.assertThat(authorService.deleteById(1))
                 .isEqualTo(true);
     }
 
     @Test
     public void deleteAll() {
-        given(authorRepository.deleteAll())
-                .willReturn(true);
         Assertions.assertThat(authorService.deleteAll()).isEqualTo(true);
     }
 }

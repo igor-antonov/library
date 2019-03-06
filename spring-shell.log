@@ -246,3 +246,44 @@
 1550571589916:newreview 44 ван Хорошо
 1550571595939:stacktrace
 1550571739723:newreview 44 ван Хорошо
+1551130269153:deletegenre qwe
+1551130293646:newgenre qwe
+1551130385657:deletegenre comedian
+1551130396895:stacktrace
+1551130685774:deletegenre comedian
+1551130713727:stacktrace
+1551130880983:deletegenre comedian
+1551175758148:deletegenre v
+1551191997062:editauthor 23 23 23 2010-01-01
+1551192180079:updategenre qwe
+1551192191483:stacktrace
+1551192227498:updategenre 22 11
+1551192284903:deletegenre 44
+1551192370034:newgenre 123
+1551192463113:deletegenre 123
+1551273491952:deletereviewall
+1551278159842:deletebook w
+1551305974344:deletebookall
+1551543403040:deletebook skazki
+1551543423315:stacktrace
+1551543552133:deletebook skazki
+1551543697984:deletebook skazki1
+1551543871431:deletegenre comedian
+1551543878886:stacktrace
+1551543933401:deletegenre comedian1
+1551543951476:deletegenre comedian22
+1551544074955:deletebook 33
+1551544161881:deletebook 33f
+1551544174019:deletebook skazki
+1551601785397:newgenre 123
+1551602514052:newgenre comedian
+1551602522974:stacktrace
+1551602667518:newgenre comedian
+1551607521675:newreview 1 Vasya good
+1551607558136:getreviewsbyb 1
+1551607602746:newreview 1 Qwe bad
+1551607618083:getreviewsbyb 2
+1551607625318:getreviewsbyb 1
+1551630404067:newgenre 1 22 33
+1551630427449:newreview 1 22 33
+1551630450575:newreview 1 qwe 2

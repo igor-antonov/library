@@ -29,55 +29,55 @@ public class AuthorRepositoryTest {
 
     @Before
     public void prepare(){
-        authorId = authorRepository.insert(new Author("Иван", "Бунин", Date.valueOf("1870-10-20")));
+        authorId = authorRepository.save(new Author("Иван", "Бунин", Date.valueOf("1870-10-20"))).getId();
         author = tem.find(Author.class, authorId);
     }
 
     @Test
     public void findById(){
-        Assertions.assertThat(authorRepository.getById(authorId).getSecondName()).isEqualTo(author.getSecondName());
+        Assertions.assertThat(authorRepository.findById(authorId).get().getSecondName()).isEqualTo(author.getSecondName());
     }
 
     @Test
     public void findByFirstNameAndSecondName(){
-        Assertions.assertThat(authorRepository.getByFirstNameAndSecondName(
+        Assertions.assertThat(authorRepository.findByFirstNameAndSecondName(
                 author.getFirstName(), author.getSecondName()
         ).get(0).getSecondName()).isEqualTo(author.getSecondName());
     }
 
     @Test
     public void findBySecondName(){
-        Assertions.assertThat(authorRepository.getBySecondName(
+        Assertions.assertThat(authorRepository.findBySecondName(
                 author.getSecondName()
         ).get(0).getSecondName()).isEqualTo(author.getSecondName());
     }
 
     @Test
     public void findByBirthday(){
-        Assertions.assertThat(authorRepository.getByBirthday(
+        Assertions.assertThat(authorRepository.findByBirthday(
                 author.getBirthday()
         ).get(0).getSecondName()).isEqualTo(author.getSecondName());
     }
 
     @Test
     public void getAll(){
-        Assertions.assertThat(authorRepository.getAll()).isEqualTo(Collections.singletonList(author));
+        Assertions.assertThat(authorRepository.findAll()).isEqualTo(Collections.singletonList(author));
     }
 
     @Test
     public void deleteById(){
         long authorId2 = tem.persistAndGetId(
                 new Author("Иван", "Иванов", Date.valueOf("1970-10-20")), Long.class);
-        Assertions.assertThat(authorRepository.getById(authorId2).getSecondName()).isEqualTo("Иванов");
+        Assertions.assertThat(authorRepository.findById(authorId2).get().getSecondName()).isEqualTo("Иванов");
         authorRepository.deleteById(authorId2);
-        Assertions.assertThat(authorRepository.getById(authorId2)).isEqualTo(null);
+        Assertions.assertThat(authorRepository.findById(authorId2).isPresent()).isEqualTo(false);
     }
 
     @Test
     public void deleteAll(){
         authorRepository.deleteAll();
         Assertions.assertThat(authorRepository.count()).isEqualTo(0);
-        authorId = authorRepository.insert(author);
+        authorId = authorRepository.save(author).getId();
         author = tem.find(Author.class, authorId);
     }
 
