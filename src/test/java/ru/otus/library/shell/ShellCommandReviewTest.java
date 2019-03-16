@@ -20,7 +20,7 @@ import ru.otus.library.service.ReviewService;
 
 import static org.mockito.BDDMockito.given;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collections;
 
 @RunWith(SpringRunner.class)
@@ -41,33 +41,31 @@ public class ShellCommandReviewTest {
     @Before
     public void prepare(){
         book = new Book("Вий"
-                , new Author("Иван", "Бунин", Date.valueOf("1870-10-20"))
+                , new Author("Иван", "Бунин", LocalDate.of(1870,10,20))
                 , new Genre("Повесть"));
-        book.setId(5);
+        book.setId("5c8cc0c8c59f940d10471c42");
         review = new Review(book,"Иван", "Хорошо");
     }
 
     @Test
     public void addNewReview() {
         given(reviewService.add(book.getId(), review.getReviewer(), review.getText()))
-                .willReturn(10L);
+                .willReturn("5c8d08d7c59f941d200d8148");
         Assertions.assertThat(sendShellCommand(String.format("newreview %s Иван Хорошо", book.getId())))
-                .isEqualTo("Добавлен комментарий с идентификатором 10");
+                .isEqualTo("Добавлен комментарий с идентификатором 5c8d08d7c59f941d200d8148");
     }
 
     @Test
     public void testUpdate() {
-        given(reviewService.updateById(Long.valueOf("2"), Long.valueOf("4"), "Иван", "Плохо"))
-                .willReturn(true);
         Assertions.assertThat(sendShellCommand("updatereview 2 4 Иван Плохо"))
         .isEqualTo("Комментарий с идентификатором 2 изменен");
     }
 
     @Test
     public void testFindByBook() throws DataNotFoundException {
-        given(reviewService.getByBookId(33L))
+        given(reviewService.getByBookId(book.getId()))
                 .willReturn(Collections.singletonList(review.toString()));
-        Assertions.assertThat(sendShellCommand("getreviewsbyb 33"))
+        Assertions.assertThat(sendShellCommand("getreviewsbyb 5c8cc0c8c59f940d10471c42"))
                 .isEqualTo(Collections.singletonList(review.toString()));
     }
 

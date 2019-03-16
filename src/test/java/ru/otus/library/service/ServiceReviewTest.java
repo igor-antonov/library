@@ -19,7 +19,7 @@ import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.repository.BookRepository;
 import ru.otus.library.repository.ReviewRepository;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -43,33 +43,22 @@ public class ServiceReviewTest {
     @Before
     public void prepare(){
         book = new Book("Вий"
-                , new Author("Иван", "Бунин", Date.valueOf("1870-10-20"))
+                , new Author("Иван", "Бунин", LocalDate.of(1870,10,20))
                 , new Genre("Повесть"));
-        book.setId(5L);
+        book.setId("5c8cc0c8c59f940d10471c42");
         review = new Review(book,"Иван", "Хорошо");
-        review.setId(7L);
+        review.setId("5c8d08d7c59f941d200d8148");
     }
 
     @Test
     public void addNewReview() {
         Review reviewNew = new Review(book,"Петр", "Написал");
-        reviewNew.setId(3L);
+        reviewNew.setId("5c8d08d7c59f941d200d8111");
         Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.ofNullable(book));
-        Mockito.when(reviewRepository.save(reviewNew))
-                .thenReturn(review);
+        Mockito.when(reviewRepository.insert(reviewNew))
+                .thenReturn(reviewNew);
         Assertions.assertThat(reviewService.add(book.getId(), reviewNew))
-                .isGreaterThanOrEqualTo(3L);
-    }
-
-    @Test
-    public void testUpdate() {
-        Review reviewNew = new Review(book,"Петр", "Написал");
-        reviewNew.setId(3L);
-        Mockito.when(bookRepository.findById(book.getId())).thenReturn(Optional.ofNullable(book));
-        Mockito.when(reviewRepository.updateById(1, reviewNew)).thenReturn(3);
-        Assertions.assertThat(reviewService.updateById(
-                1, reviewNew))
-                .isEqualTo(true);
+                .isEqualTo(reviewNew.getId());
     }
 
     @Test

@@ -2,8 +2,13 @@ package ru.otus.library.shell;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import ru.otus.library.domain.Author;
+import ru.otus.library.domain.Book;
+import ru.otus.library.domain.Genre;
 import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.service.BookService;
+
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,33 +22,40 @@ public class BookCommand {
     }
 
     @ShellMethod(value = "Добавление книги", key = "newbook")
-    public String add(String title, String authorId, String genreId){
+    public String add(String title, String authorFirstName, String authorSecondName, int authorBirthdayYear,
+                      int authorBirthdayMonth, int authorBirthdayDay, String genreName){
         try {
-            long result = bookService.add(title, Integer.valueOf(authorId), Integer.valueOf(genreId));
-            return String.format("Добавлена книга %s с идентификатором %d", title, result);
+            Book book = new Book(title
+                    , new Author(authorFirstName, authorSecondName, LocalDate.of(authorBirthdayYear,
+                    authorBirthdayMonth, authorBirthdayDay)), new Genre(genreName));
+            bookService.add(book);
+            return String.format("Добавлена книга с идентификатором: %s", book.getId());
         }
         catch (IllegalArgumentException ex){
-            return "Идентификаторы должны быть в числовом формате";
+            return "Некорректный формат указаных данных";
         }
-        catch (DataNotFoundException e){
-            return e.getMessage();
-        }
+    }
 
+    @ShellMethod(value = "Поиск книг по названию", key = "getbooksbyt")
+    public List<String> getByTitle(String title) {
+        try {
+            return bookService.getByTitle(title);
+        } catch (DataNotFoundException e) {
+            return Collections.singletonList(e.getMessage());
+        }
     }
 
     @ShellMethod(value = "Изменение книги", key = "editbook")
-    public String updateById(String bookId, String title, String authorId, String genreId) {
-        try {bookService.updateById(Integer.valueOf(bookId), title,
-                    Integer.valueOf(authorId), Integer.valueOf(genreId));
+    public String updateById(String bookId, String title, String authorFirstName, String authorSecondName,
+                             int authorBirthdayYear, int authorBirthdayMonth, int authorBirthdayDay, String genreName) {
+        try {bookService.updateById(bookId, new Book(title
+                , new Author(authorFirstName, authorSecondName, LocalDate.of(authorBirthdayYear,
+                authorBirthdayMonth, authorBirthdayDay)), new Genre(genreName)));
             return String.format("Книга с идентификатором %s изменена", bookId);
-        }
-        catch (IllegalArgumentException ex) {
-            return "Идентификаторы должны быть в числовом формате";
         }
         catch (DataNotFoundException e){
             return e.getMessage();
         }
-
     }
 
     @ShellMethod(value = "Удаление книги по названию", key = "deletebook")
@@ -66,23 +78,10 @@ public class BookCommand {
         }
     }
 
-    @ShellMethod(value = "Поиск книг по названию", key = "getbooksbyt")
-    public List<String> getByTitle(String title){
-        try {
-            return bookService.getByTitle(title);
-        }
-        catch (DataNotFoundException ex){
-            return Collections.singletonList(ex.getMessage());
-        }
-    }
-
     @ShellMethod(value = "Поиск книг по автору", key = "getbooksbya")
-    public List<String> getByAuthorId(String authorId){
+    public List<String> getByAuthorId(String authorSecondName){
         try {
-            return bookService.getByAuthorId(Integer.valueOf(authorId));
-        }
-        catch (IllegalArgumentException ex){
-            return Collections.singletonList("Идентификаторы должны быть в числовом формате");
+            return bookService.getByAuthorSecondName(authorSecondName);
         }
         catch (DataNotFoundException ex){
             return Collections.singletonList(ex.getMessage());

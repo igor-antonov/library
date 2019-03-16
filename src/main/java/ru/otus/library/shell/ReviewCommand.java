@@ -19,40 +19,28 @@ public class ReviewCommand {
 
     @ShellMethod(value = "Добавление рецензии", key = "newreview")
     public String add(String bookId, String reviewer, String text) {
-        try {
-            long result = reviewService.add(Long.valueOf(bookId), reviewer, text);
-            if (result == -1) {
-                return String.format("Книга по идентификатору %s не найдена", bookId);
-            } else {
-                return String.format("Добавлен комментарий с идентификатором %d", result);
-            }
-        }
-        catch (IllegalArgumentException ex){
-            return "Идентификаторы должны быть в числовом формате";
+        String result = reviewService.add(bookId, reviewer, text);
+        if (result.equals("Книга не найдена")) {
+            return String.format("Книга по идентификатору %s не найдена", bookId);
+        } else {
+            return String.format("Добавлен комментарий с идентификатором %s", result);
         }
     }
 
     @ShellMethod(value = "Изменение комментария по идентификатору", key = "updatereview")
     public String update(String id, String bookId, String reviewer, String text){
         try {
-            if (reviewService.updateById(Long.valueOf(id), Long.valueOf(bookId), reviewer, text)) {
-                return String.format("Комментарий с идентификатором %s изменен", id);
-            } else {
-                return String.format("Комментарий с идентификатором %s не найден", id);
-            }
-        }
-        catch (IllegalArgumentException ex){
-            return "Идентификаторы должны быть в числовом формате " + ex.getMessage();
+            reviewService.updateById(id, bookId, reviewer, text);
+            return String.format("Комментарий с идентификатором %s изменен", id);
+        } catch (DataNotFoundException e) {
+            return e.getMessage();
         }
     }
 
     @ShellMethod(value = "Поиск комментариев по книге", key = "getreviewsbyb")
     public List<String> getByBookId(String bookId){
         try {
-            return reviewService.getByBookId(Long.valueOf(bookId));
-        }
-        catch (IllegalArgumentException ex){
-            return Collections.singletonList("Идентификаторы должны быть в числовом формате");
+            return reviewService.getByBookId(bookId);
         }
         catch (DataNotFoundException ex){
             return Collections.singletonList(ex.getMessage());
@@ -62,7 +50,7 @@ public class ReviewCommand {
     @ShellMethod(value = "Поиск комментариев по идентификатору", key = "getreviewsbyid")
     public String getById(String reviewId){
         try {
-            return reviewService.getById(Long.valueOf(reviewId));
+            return reviewService.getById(reviewId);
         }
         catch (IllegalArgumentException ex){
             return "Идентификаторы должны быть в числовом формате";

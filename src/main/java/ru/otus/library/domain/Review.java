@@ -2,32 +2,31 @@ package ru.otus.library.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import javax.persistence.*;
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
-@Entity
-@Table(name = "reviews")
+@Document(collection = "reviews")
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private String id;
 
-    @ManyToOne
     private Book book;
     private String text;
     private String reviewer;
 
-    @Column(name = "creation_date")
-    private Date creationDate;
+    @Field("creation_date")
+    private LocalDate creationDate;
 
     public Review(Book book, String reviewer, String text) {
         this.book = book;
         this.text = text;
         this.reviewer = reviewer;
-        this.creationDate = new Date(System.currentTimeMillis());
+        this.creationDate = LocalDate.now();
     }
 }

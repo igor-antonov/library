@@ -5,62 +5,49 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
 import ru.otus.library.domain.Review;
-import ru.otus.library.exception.DataNotFoundException;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 @RunWith(SpringRunner.class)
 @ComponentScan
-@DataJpaTest
+@DataMongoTest
 public class ReviewRepositoryTest {
 
-    @Autowired
-    GenreRepository genreRepository;
-    @Autowired
-    AuthorRepository authorRepository;
     @Autowired
     BookRepository bookRepository;
     @Autowired
     ReviewRepository reviewRepository;
-    @Autowired
-    TestEntityManager tem;
 
-    private Genre genre;
-    private Author author;
-    private Long bookId;
     private Book book;
-    private Long reviewId;
+    private String reviewId;
     private Review review;
 
     @Before
-    public void prepare() throws DataNotFoundException {
-        genre = genreRepository.save(new Genre("Comedian"));
-        Long authorId = authorRepository.save(new Author("Иван", "Бунин", Date.valueOf("1870-10-20"))).getId();
-        author = tem.find(Author.class, authorId);
-        bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
-        book = bookRepository.findById(bookId).get();
-        reviewId = reviewRepository.save(new Review(book, "Критик", "норм")).getId();
+    public void prepare() {
+        Genre genre = new Genre("Comedian");
+        Author author = new Author("Иван", "Бунин", LocalDate.of(1870,10,20));
+        book = bookRepository.insert(new Book("Сказки", author, genre));
+        reviewId = reviewRepository.insert(new Review(book, "Критик", "норм")).getId();
         review = reviewRepository.findById(reviewId).get();
     }
 
     @Test
     public void findById(){
-        Assertions.assertThat(reviewRepository.findById(reviewId).get().getReviewer()).isEqualTo(review.getReviewer());
+        Assertions.assertThat(reviewRepository.findById(reviewId).get().getReviewer())
+                .isEqualTo(review.getReviewer());
     }
 
     @Test
     public void findByBook(){
-        System.out.println("reviewRepository = " + reviewRepository.findAll());
-        System.out.println("bookRepository = " + bookRepository.findAll());
-        Assertions.assertThat(reviewRepository.findByBook(book).get(0).getReviewer()).isEqualTo(review.getReviewer());
+        Assertions.assertThat(reviewRepository.findByBook(book).get(0).getReviewer())
+                .isEqualTo(review.getReviewer());
     }
 
     @Test
@@ -68,20 +55,20 @@ public class ReviewRepositoryTest {
         reviewRepository.deleteAll();
         System.out.println(bookRepository.findAll());
         Assertions.assertThat(reviewRepository.findAll().size()).isEqualTo(0);
-        reviewId = reviewRepository.save(new Review(book, review.getReviewer(), review.getText())).getId();
-        review = tem.find(Review.class, reviewId);
+        reviewId = reviewRepository.insert(new Review(book, review.getReviewer(), review.getText())).getId();
+        review = reviewRepository.findById(reviewId).get();
     }
 
     @Test
     public void count(){
-        System.out.println("reviewRepository = " + reviewRepository.findAll());
-        Assertions.assertThat(reviewRepository.count()).isEqualTo(1);
+        Assertions.assertThat(reviewRepository.count()).isGreaterThanOrEqualTo(1);
     }
 
     @Test
     public void update(){
         review.setText("меняю свое мнение");
-        reviewRepository.updateById(reviewId, review);
-        Assertions.assertThat(tem.find(Review.class, reviewId).getText()).isEqualTo(review.getText());
+        reviewRepository.save(review);
+        Assertions.assertThat(reviewRepository.findById(reviewId).get().getText())
+                .isEqualTo(review.getText());
     }
 }

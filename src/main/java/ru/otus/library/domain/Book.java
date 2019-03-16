@@ -2,24 +2,18 @@ package ru.otus.library.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @NoArgsConstructor
-@Entity
-@Table(name = "books")
+@Document(collection = "books")
 public class Book {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    String id;
     private String title;
-    @OneToOne
-    @JoinColumn(name = "author_id")
     private Author author;
-    @OneToOne
-    @JoinColumn(name = "genre_id")
     private Genre genre;
 
     public Book(String title, Author author, Genre genre) {
@@ -30,7 +24,8 @@ public class Book {
 
     @Override
     public String toString() {
-        return "Книга{" +
+        return "Книга{"+
+                //"_id=" + _id +
                 "id=" + id +
                 ", название:'" + title + '\'' +
                 ", автор:" + author +
