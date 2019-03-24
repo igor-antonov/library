@@ -35,11 +35,11 @@
         </thead>
         <tbody >
             <tr th:each="book: ${books}">
-                <td th:text="${book.getTitle()}"></td>
-                <td th:text="${book.getAuthor().toString()}">
-                <td th:text="${book.getGenre().getName()}"></td>
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.author.toString()}">
+                <td th:text="${book.genre.name}"></td>
                 <td><a th:href="@{/delete/{id}(id=${book.getId()})}">Удалить</a></td>
-                <td><a th:href="@{/edit(id=${book.getId()})}">Изменить</a></td>
+                <td><a th:href="@{/edit(id=${book.getId()})}" href="edit.html">Изменить</a></td>
             </tr>
         </tbody>
     </table>

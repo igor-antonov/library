@@ -19,10 +19,6 @@ public class Author {
 
     @Override
     public String toString() {
-        return "Автор{" +
-                "имя=:'" + firstName + '\'' +
-                ", фамилия:'" + secondName + '\'' +
-                ", день рождения:" + birthday +
-                '}';
+        return firstName + " " + secondName + ", " + birthday;
     }
 }

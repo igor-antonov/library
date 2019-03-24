@@ -8,12 +8,7 @@ import java.util.Optional;
 
 public interface BookRepository extends MongoRepository<Book, Long> {
     Optional<Book> findById(String id);
-    List<Book> findByTitle(String title);
-    List<Book> findByAuthor_SecondName(String secondName);
-    List<Book> findByGenre_Name(String genreName);
     List<Book> findAll();
     Book insert(Book book);
-    long deleteByTitle(String title);
-    void deleteAll();
-    long count();
+    void deleteById(String id);
 }

@@ -1,4 +1,4 @@
-package ru.otus.library.service;
+package ru.otus.library;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
@@ -13,6 +13,7 @@ import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
 import ru.otus.library.exception.DataNotFoundException;
 import ru.otus.library.repository.BookRepository;
+import ru.otus.library.service.BookService;
 
 import java.time.LocalDate;
 import java.util.Optional;

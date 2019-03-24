@@ -18,13 +18,13 @@
         <div class="row">
             <label for="title-input">Название:</label>
             <input id="title-input" name="title" type="text"
-                   th:value="${book.getTitle()}" required="required"/>
+                   th:value="${book.title}" required="required"/>
         </div>
 
         <div class="row">
             <label for="genre-input">Жанр:</label>
             <input id="genre-input" name="genre" type="text"
-                   th:value="${book.getGenre().getName()}" required="required"/>
+                   th:value="${book.genre.name}" required="required"/>
         </div>
 
         <div>
@@ -34,19 +34,19 @@
         <div class="row">
             <label for="author-first-name-input">Имя:</label>
             <input id="author-first-name-input" name="first-name" type="text"
-                   th:value="${book.getAuthor().getFirstName()}" required="required"/>
+                   th:value="${book.author.firstName}" required="required"/>
         </div>
 
         <div class="row">
             <label for="author-second-name-input">Фамилия:</label>
             <input id="author-second-name-input" name="second-name" type="text"
-                   th:value="${book.getAuthor().getSecondName()}" required="required"/>
+                   th:value="${book.author.secondName}" required="required"/>
         </div>
 
         <div class="row">
             <label for="author-birthday-input">День рождения:</label>
             <input id="author-birthday-input" name="birthday" type="date"
-                   th:value="${book.getAuthor().getBirthday()}" required="required"/>
+                   th:value="${book.author.birthday}" required="required"/>
         </div>
 
         <div class="row">
@@ -54,5 +54,5 @@
         </div>
     </form>
 </div>
-</body>git checkout -b hw2
+</body>
 </html>
