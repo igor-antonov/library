@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Книги</title>
+    <style type="text/css">
+        table,th,td
+        {
+            border:1px solid black;
+            background-color: azure;
+            color: darkgreen;
+        }
+        td
+        {
+            padding:5px;
+        }
+        div
+        {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<h2>Книги:</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Название</th>
+            <th>Автор</th>
+            <th>Жанр</th>
+            <th>Действие1</th>
+            <th>Действие2</th>
+        </tr>
+        </thead>
+        <tbody >
+            <tr th:each="book: ${books}">
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.author.toString()}">
+                <td th:text="${book.genre.name}"></td>
+                <td><a th:href="@{/delete/{id}(id=${book.getId()})}">Удалить</a></td>
+                <td><a th:href="@{/edit(id=${book.getId()})}" href="edit.html">Изменить</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+<div>
+<form id="add-form" th:action="@{/add}" th:method="post">
+    <h2>Добавление новой книги:</h2>
+
+    <div>
+        <label for="title-input">Название:</label>
+        <input id="title-input" name="title" type="text" required="required"/>
+    </div>
+
+    <div>
+        <label for="genre-input">Жанр:</label>
+        <input id="genre-input" name="genre" type="text" required="required"/>
+    </div>
+
+    <div>
+        <h3>Автор</h3>
+    </div>
+
+    <div>
+        <label for="author-first-name-input">Имя:</label>
+        <input id="author-first-name-input" name="first-name" type="text" required="required"/>
+    </div>
+
+    <div>
+        <label for="author-second-name-input">Фамилия:</label>
+        <input id="author-second-name-input" name="second-name" type="text" required="required"/>
+    </div>
+
+    <div>
+        <label for="author-birthday-input">День рождения:</label>
+        <input id="author-birthday-input" name="birthday" type="date" required="required"/>
+    </div>
+
+    <div>
+        <button type="submit">Сохранить</button>
+    </div>
+</form>
+</div>
+
+</body>
+</html>

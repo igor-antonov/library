@@ -25,7 +25,6 @@ public class Book {
     @Override
     public String toString() {
         return "Книга{"+
-                //"_id=" + _id +
                 "id=" + id +
                 ", название:'" + title + '\'' +
                 ", автор:" + author +
