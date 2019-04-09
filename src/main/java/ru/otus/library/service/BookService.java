@@ -37,10 +37,10 @@ public class BookService {
         }
     }
 
-    public void updateById(String bookId, Book book) throws DataNotFoundException {
-        Book bookOld = getById(bookId);
-        book.setId(bookOld.getId());
-        bookRepository.save(book);
+    public Book update(String bookId, Book book) throws DataNotFoundException {
+        getById(bookId);
+        book.setId(bookId);
+        return bookRepository.save(book);
     }
 
     public void deleteById(String id) throws DataNotFoundException {

@@ -24,10 +24,4 @@ public class ControllerTest {
         this.mockMvc.perform(get("/")).andDo(print())
                 .andExpect(status().isOk());
     }
-
-    @Test
-    public void openEditPage() throws Exception {
-        this.mockMvc.perform(get("/edit?id=5c9663400f05ee173cd94ba")).andDo(print())
-                .andExpect(status().isOk());
-    }
 }
