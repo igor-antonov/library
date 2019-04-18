@@ -18,24 +18,24 @@ Vue.component('book-table', {
         return {book : null};
     },
     template:
-        '<div>' +
-            '<book-form :books = "books" :bookAttr = "book"/>' +
-            '<div/>' +
-            '<table>' +
-                '<thead>' +
-                    '<tr>' +
-                        '<th>Название</th>' +
-                        '<th>Автор</th>' +
-                        '<th>Жанр</th>' +
-                        '<th>Действие1</th>' +
-                        '<th>Действие2</th>' +
-                    '</tr>' +
-                '</thead>' +
-                '<tbody><book-rows v-for="book in books" :book = "book" :books = "books" ' +
-                ':key = "book.id" :editMethod = "editMethod"/>' +
-                '</tbody>' +
-            '</table>' +
-        '</div>',
+        `<div>
+            <book-form :books = "books" :bookAttr = "book"/>
+            <div/>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Автор</th>
+                        <th>Жанр</th>
+                        <th>Действие1</th>
+                        <th>Действие2</th>
+                    </tr>
+                </thead>
+                <tbody><book-rows v-for="book in books" :book = "book" :books = "books"
+                :key = "book.id" :editMethod = "editMethod"/>
+                </tbody>
+            </table>
+        </div>`,
 
     methods: {
         editMethod: function (book) {
@@ -47,13 +47,13 @@ Vue.component('book-table', {
 Vue.component('book-rows', {
     props: ['book', 'editMethod', 'books'],
     template:
-        '<tr>' +
-            '<td>{{book.title}}</td>' +
-            '<td v-if="book.author">{{book.author.firstName}}&nbsp;{{book.author.secondName}}&nbsp;{{book.author.birthday}}</td>' +
-            '<td v-if="book.genre">{{book.genre.name}}</td><td v-else>Проблема здесь</td>' +
-            '<td><input type="image" src="edit.png" @click = "edit"></td>' +
-            '<td><input type="image" src="del.png" @click ="del"/></td>' +
-        '</tr>',
+        `<tr>
+            <td>{{book.title}}</td>
+            <td v-if="book.author">{{book.author.firstName}}&nbsp;{{book.author.secondName}}&nbsp;{{book.author.birthday}}</td>
+            <td v-if="book.genre">{{book.genre.name}}</td><td v-else>Проблема здесь</td>
+            <td><input type="image" src="edit.png" @click = "edit"></td>
+            <td><input type="image" src="del.png" @click ="del"/></td>
+        </tr>`,
     methods: {
         del: function() {
             instance.delete('/' + this.book.id).then(res => {
@@ -93,17 +93,18 @@ Vue.component('book-form', {
         }
     },
     template:
-            '<div>' +
-                '<h3 v-if="id">Изменение книги:</h3>' +
-                '<h3 v-else>Добавление книги:</h3>' +
-                '<div><input type="text" placeholder="Название" v-model="title"/></div>' +
-                '<div><input type="text" placeholder="Жанр" v-model="genre"/></div>' +
-                '<div><h3>Автор</h3></div>' +
-                '<div><input type="text" placeholder="Имя" v-model="firstName"/></div>' +
-                '<div><input type="text" placeholder="Фамилия" v-model="secondName"/></div>' +
-                '<div><input type="date" placeholder="День рождения" v-model="birthday"/></div>' +
-                '<div><input type="button" value="Сохранить" @click="save"/></div>' +
-            '</div>',
+            `<div>
+                <br/>
+                <h3 v-if="id">Изменение книги:</h3>
+                <h3 v-else>Добавление книги:</h3>
+                <div><input type="text" placeholder="Название" v-model="title"/></div>
+                <div><input type="text" placeholder="Жанр" v-model="genre"/></div>
+                <div><h3>Автор</h3></div>
+                <div><input type="text" placeholder="Имя" v-model="firstName"/></div>
+                <div><input type="text" placeholder="Фамилия" v-model="secondName"/></div>
+                <div><input type="date" placeholder="День рождения" v-model="birthday"/></div>
+                <div><input type="button" value="Сохранить" @click="save"/></div>
+            </div>`,
 
     methods: {
         save: function () {
@@ -137,12 +138,10 @@ Vue.component('book-form', {
             }
             else {
                 if (this.id){
-                    instance.put('/' + this.bookAttr.id, book).then(res => {
-                        instance.put('/' + this.bookAttr.id, book).then(data => {
-                            var bookData = data.data;
-                            var index = getIndex(this.books, bookData.id);
-                            this.books.splice(index, 1, bookData);
-                        })
+                    instance.put('/' + this.bookAttr.id, book).then(data => {
+                        var bookData = data.data;
+                        var index = getIndex(this.books, bookData.id);
+                        this.books.splice(index, 1, bookData);
                     })
                 }
 
@@ -166,9 +165,9 @@ new Vue({
         books: [],
         book: null
     },
-    template: '<div>' +
-                '<book-table :books = "books"/>' +
-            '</div>',
+    template: `<div>
+                <book-table :books = "books"/>
+            </div>`,
 
     created() {
         instance

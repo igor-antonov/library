@@ -11,8 +11,7 @@ public class Author {
     private String secondName;
     private LocalDate birthday;
 
-    public Author(){
-}
+    public Author(){}
 
     public Author(String firstName, String secondName, LocalDate birthday) {
         this.firstName = firstName;
