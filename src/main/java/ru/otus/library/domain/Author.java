@@ -11,6 +11,8 @@ public class Author {
     private String secondName;
     private LocalDate birthday;
 
+    public Author(){}
+
     public Author(String firstName, String secondName, LocalDate birthday) {
         this.firstName = firstName;
         this.secondName = secondName;
@@ -19,6 +21,6 @@ public class Author {
 
     @Override
     public String toString() {
-        return firstName + " " + secondName + ", " + birthday;
+        return firstName + " " + secondName + " " + birthday;
     }
 }
