@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h1>Авторизация</h1>
+
+<div th:if="${#request.getParameter('error') == 'true'}"
+     style="color:red;margin:10px 0px;">
+    Login Failed!!!<br />
+    Reason :
+    <span th:if="${#session!= null and #session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION') != null}"
+          th:utext="${#session.getAttribute('SPRING_SECURITY_LAST_EXCEPTION').message}">
+                Static summary
+         </span>
+
+</div>
+
+<h3>Введите логин и пароль:</h3>
+<form name='authorization-form' th:action="@{/j_spring_security_check}" method='POST'>
+    <table>
+        <tr>
+            <td>Логин:</td>
+            <td><input type='text' name='j_username' value=''></td>
+        </tr>
+        <tr>
+            <td>Пароль:</td>
+            <td><input type='password' name='j_password' /></td>
+        </tr>
+        <tr>
+            <td><input name="submit" type="submit" value="Ок" /></td>
+        </tr>
+    </table>
+</form>
+
+<h3>Регистрация нового пользователя:</h3>
+<form name='registration-form' th:action="@{/registration}" method='POST'>
+    <table>
+        <tr>
+            <td>Логин:</td>
+            <td><input type='text' name='j_login' value=''></td>
+        </tr>
+        <tr>
+            <td>Пароль:</td>
+            <td><input type='password' name='j_password' /></td>
+        </tr>
+        <tr>
+            <td><input id="registration-button" name="submit" type="submit" value="Ок" /></td>
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    $(document).ready(()=>{$('#registration-button').on('click', ()=> alert('Пользователь добавлен'))});
+</script>
+
+</body>
+</html>
