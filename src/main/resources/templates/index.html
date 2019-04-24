@@ -36,7 +36,7 @@
     });
 
     function getIndex(list, id) {
-        for (var i = 0; i < list.length; i++ ) {
+        for (let i = 0; i < list.length; i++ ) {
             if (list[i].id === id) {
                 return i;
             }
@@ -90,7 +90,7 @@
             del: function() {
                 instance.delete('/' + this.book.id).then(res => {
                     if (res.status === 200) {
-                        this.books.splice(this.books.indexOf(this.book), 1)
+                        this.books.splice(this.books.indexOf(this.book), 1);
                     }
                 })
             },
@@ -140,15 +140,15 @@
 
         methods: {
             save: function () {
-                var author = {
+                const author = {
                     firstName: this.firstName,
                     secondName: this.secondName,
                     birthday: this.birthday
                 };
-                var genre = {
+                const genre = {
                     name: this.genre
                 };
-                var book = {
+                const book = {
                     title: this.title,
                     genre: genre,
                     author: author
@@ -171,8 +171,8 @@
                 else {
                     if (this.id){
                         instance.put('/' + this.bookAttr.id, book).then(data => {
-                            var bookData = data.data;
-                            var index = getIndex(this.books, bookData.id);
+                            const bookData = data.data;
+                            const index = getIndex(this.books, bookData.id);
                             this.books.splice(index, 1, bookData);
                         })
                     }

@@ -9,10 +9,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class User {
 
     @Id
-    String id;
+    private String id;
 
-    String userName;
-    String password;
+    private String userName;
+    private String password;
 
     public User(String userName, String password) {
         this.userName = userName;

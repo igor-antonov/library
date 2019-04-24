@@ -18,9 +18,6 @@ import ru.otus.library.service.MyUserDetailsService;
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    AccessDeniedHandler accessDeniedHandler;
-
-    @Autowired
     private MyUserDetailsService myUserDetailsService;
 
     @Override
