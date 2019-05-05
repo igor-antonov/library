@@ -15,10 +15,10 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String title;
-    @OneToOne
+    @OneToOne(cascade=CascadeType.MERGE)
     @JoinColumn(name = "author_id")
     private Author author;
-    @OneToOne
+    @OneToOne(cascade=CascadeType.MERGE)
     @JoinColumn(name = "genre_id")
     private Genre genre;
 

@@ -3,7 +3,7 @@ package ru.otus.library.domain;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -18,16 +18,9 @@ public class Author {
     private String firstName;
     @Column(name = "second_name")
     private String secondName;
-    private Date birthday;
+    private LocalDate birthday;
 
-    public Author(long id, String firstName, String secondName, Date birthday) {
-        this.id = id;
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.birthday = birthday;
-    }
-
-    public Author(String firstName, String secondName, Date birthday) {
+    public Author(String firstName, String secondName, LocalDate birthday) {
         this.firstName = firstName;
         this.secondName = secondName;
         this.birthday = birthday;

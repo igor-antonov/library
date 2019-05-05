@@ -1,41 +1,29 @@
 package ru.otus.library.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.shell.jline.InteractiveShellApplicationRunner;
-import org.springframework.shell.jline.ScriptShellApplicationRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
 import ru.otus.library.exception.DataNotFoundException;
-import ru.otus.library.repository.AuthorRepository;
 import ru.otus.library.repository.BookRepository;
-import ru.otus.library.repository.GenreRepository;
 
-import java.sql.Date;
-import java.util.Collections;
+import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties={
-        InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
-        ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false"
-})
+@SpringBootTest
 public class ServiceBookTest {
     @MockBean
     BookRepository bookRepository;
-    @MockBean
-    AuthorRepository authorRepository;
-    @MockBean
-    GenreRepository genreRepository;
     @Autowired
     BookService bookService;
     private Book book;
@@ -44,50 +32,23 @@ public class ServiceBookTest {
 
     @Before
     public void prepare() {
-        author = new Author("Иван", "Бунин", Date.valueOf("1870-10-20"));
-        author.setId(1L);
+        author = new Author("Иван", "Бунин", LocalDate.of(1870,10,20));
         genre = new Genre("Повесть");
-        genre.setId(2L);
         book = new Book("Вий", author, genre);
-        book.setId(5L);
     }
 
     @Test
-    public void addNewBook() throws DataNotFoundException {
-        given(authorRepository.findById(author.getId())).willReturn(Optional.ofNullable(author));
-        given(genreRepository.findById(genre.getId())).willReturn(Optional.ofNullable(genre));
-        given(bookRepository.save(new Book("1984", author, genre))).willReturn(book);
-        Assertions.assertThat(bookService.add("1984", author.getId(), genre.getId()))
-                .isGreaterThanOrEqualTo(0L);
+    public void addNewBook() {
+        Book book1 = new Book("1984", author, genre);
+        given(bookRepository.save(book1)).willReturn(book1);
+        assertThat(bookService.add(book1))
+                .isEqualTo(book1);
     }
 
     @Test
-    public void testUpdate() throws DataNotFoundException {
-        Book bookNew = new Book("Цветы для Элджернона", author, genre);
-        bookNew.setId(9L);
-        given(authorRepository.findById(author.getId())).willReturn(Optional.of(author));
-        given(genreRepository.findById(genre.getId())).willReturn(Optional.of(genre));
-        given(bookRepository.findById(5L)).willReturn(Optional.ofNullable(book));
-        given(bookRepository.updateById(book.getId(), bookNew)).willReturn(9);
-        Assertions.assertThat(bookService.updateById(book.getId(), bookNew)).isEqualTo(true);
-    }
-
-    @Test
-    public void getBookByTitle() throws DataNotFoundException {
-        given(bookRepository.findByTitle("Вий")).willReturn(Collections.singletonList(book));
-        Assertions.assertThat(bookService.getByTitle("Вий"))
-                .isEqualTo(Collections.singletonList(book.toString()));
-    }
-
-    @Test
-    public void deleteBook() {
-        given(bookRepository.deleteByTitle("Вий")).willReturn(book.getId());
-        Assertions.assertThat(bookService.deleteByTitle("Вий"))
-                .isEqualTo(true);
-    }
-
-    @Test
-    public void deleteAll() {
-        Assertions.assertThat(bookService.deleteAll()).isEqualTo(true);
+    public void getBookById() throws DataNotFoundException {
+        given(bookRepository.findById(123L)).willReturn(Optional.ofNullable(book));
+        assertThat(bookService.getById(123L))
+                .isEqualTo(book);
     }
 }
