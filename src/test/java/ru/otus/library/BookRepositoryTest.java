@@ -1,4 +1,4 @@
-package ru.otus.library.repository;
+package ru.otus.library;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +11,9 @@ import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
 import ru.otus.library.exception.DataNotFoundException;
+import ru.otus.library.repository.AuthorRepository;
+import ru.otus.library.repository.BookRepository;
+import ru.otus.library.repository.GenreRepository;
 
 import java.time.LocalDate;
 import java.util.Collections;

@@ -40,7 +40,6 @@ public class BookService {
     public Book update(Long bookId, Book book) throws DataNotFoundException {
         getById(bookId);
         book.setId(bookId);
-        System.out.println("authorrrrR: " + book.getAuthor());
         return bookRepository.save(book);
     }
 

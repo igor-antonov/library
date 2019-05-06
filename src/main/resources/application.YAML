@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/spring?characterEncoding=UTF8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Europe/Moscow
-    username: otus
-    password: otus
+    url: jdbc:mysql://localhost:3306/spring3?characterEncoding=UTF8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Europe/Moscow
+    username: test1
+    password: test1
     initialization-mode: always
   jpa:
     properties:
