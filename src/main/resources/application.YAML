@@ -1,4 +1,11 @@
 spring:
-  data:
-    mongodb:
-      database: otus
+  datasource:
+    url: jdbc:mysql://localhost:3306/spring3?characterEncoding=UTF8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Europe/Moscow
+    username: test1
+    password: test1
+    initialization-mode: always
+  jpa:
+    properties:
+      hibernate:
+        id:
+          new_generator_mappings: false

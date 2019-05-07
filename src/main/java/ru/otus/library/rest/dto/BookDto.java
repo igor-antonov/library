@@ -8,12 +8,12 @@ import ru.otus.library.domain.Genre;
 @Data
 public class BookDto {
 
-    private String id;
+    private Long id;
     private String title;
     private Genre genre;
     private Author author;
 
-    public BookDto(String id, String title, Genre genre, Author author){
+    public BookDto(Long id, String title, Genre genre, Author author){
         this.id = id;
         this.title = title;
         this.genre = genre;

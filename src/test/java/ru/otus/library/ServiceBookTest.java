@@ -1,6 +1,5 @@
 package ru.otus.library;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +17,7 @@ import ru.otus.library.service.BookService;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
@@ -41,15 +41,15 @@ public class ServiceBookTest {
     @Test
     public void addNewBook() {
         Book book1 = new Book("1984", author, genre);
-        given(bookRepository.insert(book1)).willReturn(book1);
+        given(bookRepository.save(book1)).willReturn(book1);
         assertThat(bookService.add(book1))
                 .isEqualTo(book1);
     }
 
     @Test
     public void getBookById() throws DataNotFoundException {
-        given(bookRepository.findById("123q")).willReturn(Optional.ofNullable(book));
-        assertThat(bookService.getById("123q"))
+        given(bookRepository.findById(123L)).willReturn(Optional.ofNullable(book));
+        assertThat(bookService.getById(123L))
                 .isEqualTo(book);
     }
 }

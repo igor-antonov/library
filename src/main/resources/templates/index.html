@@ -34,7 +34,6 @@
         baseURL: '/book',
         timeout: 1000
     });
-
     function getIndex(list, id) {
         for (let i = 0; i < list.length; i++ ) {
             if (list[i].id === id) {
@@ -43,7 +42,6 @@
         }
         return -1;
     }
-
     Vue.component('book-table', {
         props: ['books'],
         data: function () {
@@ -68,14 +66,12 @@
                 </tbody>
             </table>
         </div>`,
-
         methods: {
             editMethod: function (book) {
                 this.book = book;
             }
         }
     });
-
     Vue.component('book-rows', {
         props: ['book', 'editMethod', 'books'],
         template:
@@ -99,16 +95,15 @@
             }
         }
     });
-
-
-
     Vue.component('book-form', {
         props: ['bookAttr', 'books'],
         data: function () {
             return {
                 id: '',
                 title: '',
-                genre: '',
+                genreId: '',
+                genreName: '',
+                authorId: '',
                 firstName: '',
                 secondName: '',
                 birthday: ''
@@ -118,7 +113,9 @@
             bookAttr: function(newVal, oldVal){
                 this.id = newVal.id;
                 this.title = newVal.title;
-                this.genre = newVal.genre.name;
+                this.genreId = newVal.genre.id;
+                this.genreName = newVal.genre.name;
+                this.authorId = newVal.author.id;
                 this.firstName = newVal.author.firstName;
                 this.secondName = newVal.author.secondName;
                 this.birthday = newVal.author.birthday;
@@ -130,23 +127,24 @@
                 <h3 v-if="id">Изменение книги:</h3>
                 <h3 v-else>Добавление книги:</h3>
                 <div><input type="text" placeholder="Название" v-model="title"/></div>
-                <div><input type="text" placeholder="Жанр" v-model="genre"/></div>
+                <div><input type="text" placeholder="Жанр" v-model="genreName"/></div>
                 <div><h3>Автор</h3></div>
                 <div><input type="text" placeholder="Имя" v-model="firstName"/></div>
                 <div><input type="text" placeholder="Фамилия" v-model="secondName"/></div>
                 <div><input type="date" placeholder="День рождения" v-model="birthday"/></div>
                 <div><input type="button" value="Сохранить" @click="save"/></div>
             </div>`,
-
         methods: {
             save: function () {
                 const author = {
+                    id: this.authorId,
                     firstName: this.firstName,
                     secondName: this.secondName,
                     birthday: this.birthday
                 };
                 const genre = {
-                    name: this.genre
+                    id: this.genreId,
+                    name: this.genreName
                 };
                 const book = {
                     title: this.title,
@@ -176,13 +174,12 @@
                             this.books.splice(index, 1, bookData);
                         })
                     }
-
                     else {
                         instance.post('',book).then(data => {this.books.push(book)});
                     }
                     this.id = '';
                     this.title = '';
-                    this.genre = '';
+                    this.genreName = '';
                     this.firstName = '';
                     this.secondName = '';
                     this.birthday = '';
@@ -190,7 +187,6 @@
             }
         }
     });
-
     new Vue({
         el: '#app',
         data: {
@@ -201,7 +197,6 @@
             `<div>
             <book-table :books = "books"/>
         </div>`,
-
         created() {
             instance
                 .get('')

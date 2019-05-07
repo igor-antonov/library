@@ -20,14 +20,14 @@ public class BookService {
     }
 
     public Book add(Book book) {
-        return bookRepository.insert(book);
+        return bookRepository.save(book);
     }
 
     public List<Book> getAll() {
         return bookRepository.findAll();
     }
 
-    public Book getById(String id) throws DataNotFoundException {
+    public Book getById(Long id) throws DataNotFoundException {
         Optional<Book> bookOpt = bookRepository.findById(id);
         if (!bookOpt.isPresent()){
             throw new DataNotFoundException(String.format("Книга по идентификатору %s не найдена", id));
@@ -37,13 +37,13 @@ public class BookService {
         }
     }
 
-    public Book update(String bookId, Book book) throws DataNotFoundException {
+    public Book update(Long bookId, Book book) throws DataNotFoundException {
         getById(bookId);
         book.setId(bookId);
         return bookRepository.save(book);
     }
 
-    public void deleteById(String id) throws DataNotFoundException {
+    public void deleteById(Long id) throws DataNotFoundException {
         getById(id);
         bookRepository.deleteById(id);
     }

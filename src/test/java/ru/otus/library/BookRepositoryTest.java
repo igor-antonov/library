@@ -1,32 +1,38 @@
 package ru.otus.library;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.Genre;
 import ru.otus.library.exception.DataNotFoundException;
+import ru.otus.library.repository.AuthorRepository;
 import ru.otus.library.repository.BookRepository;
+import ru.otus.library.repository.GenreRepository;
 
 import java.time.LocalDate;
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringRunner.class)
 @ComponentScan
-@DataMongoTest
+@DataJpaTest
 public class BookRepositoryTest {
-
 
     @Autowired
     BookRepository bookRepository;
+    @Autowired
+    AuthorRepository authorRepository;
+    @Autowired
+    GenreRepository genreRepository;
 
-    private String bookId;
+    private Long bookId;
     private Book book;
     private Author author;
     private Genre genre;
@@ -34,9 +40,9 @@ public class BookRepositoryTest {
 
     @Before
     public void prepare(){
-        author = new Author("Иван", "Бунин", LocalDate.of(1870, 10, 20));
-        genre = new Genre("Comedian");
-        bookId = bookRepository.insert(new Book("Сказки", author, genre)).getId();
+        author = authorRepository.save(new Author("Иван", "Бунин", LocalDate.of(1870, 10, 20)));
+        genre = genreRepository.save(new Genre("Comedian"));
+        bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
         book = bookRepository.findById(bookId).get();
     }
 
@@ -53,7 +59,7 @@ public class BookRepositoryTest {
 
     @Test
     public void deleteById() throws DataNotFoundException {
-        String bookId2 = bookRepository.insert(new Book("Война и мир", author, genre)).getId();
+        Long bookId2 = bookRepository.save(new Book("Война и мир", author, genre)).getId();
         assertThat(bookRepository.findById(bookId2).get().getTitle()).isEqualTo("Война и мир");
         bookRepository.deleteById(bookId2);
         assertThat(bookRepository.findById(bookId2).isPresent()).isEqualTo(false);
