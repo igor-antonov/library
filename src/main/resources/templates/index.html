@@ -34,7 +34,6 @@
         baseURL: '/book',
         timeout: 1000
     });
-
     function getIndex(list, id) {
         for (let i = 0; i < list.length; i++ ) {
             if (list[i].id === id) {
@@ -43,7 +42,6 @@
         }
         return -1;
     }
-
     Vue.component('book-table', {
         props: ['books'],
         data: function () {
@@ -68,14 +66,12 @@
                 </tbody>
             </table>
         </div>`,
-
         methods: {
             editMethod: function (book) {
                 this.book = book;
             }
         }
     });
-
     Vue.component('book-rows', {
         props: ['book', 'editMethod', 'books'],
         template:
@@ -99,9 +95,6 @@
             }
         }
     });
-
-
-
     Vue.component('book-form', {
         props: ['bookAttr', 'books'],
         data: function () {
@@ -141,7 +134,6 @@
                 <div><input type="date" placeholder="День рождения" v-model="birthday"/></div>
                 <div><input type="button" value="Сохранить" @click="save"/></div>
             </div>`,
-
         methods: {
             save: function () {
                 const author = {
@@ -182,7 +174,6 @@
                             this.books.splice(index, 1, bookData);
                         })
                     }
-
                     else {
                         instance.post('',book).then(data => {this.books.push(book)});
                     }
@@ -196,7 +187,6 @@
             }
         }
     });
-
     new Vue({
         el: '#app',
         data: {
@@ -207,7 +197,6 @@
             `<div>
             <book-table :books = "books"/>
         </div>`,
-
         created() {
             instance
                 .get('')

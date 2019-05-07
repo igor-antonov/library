@@ -53,8 +53,8 @@ public class BookController {
     @PostMapping
     public Book add(@RequestBody Book book) throws DataNotFoundException {
         Author author = authorService.getByFirstNameAndSecondNameAndBirthday(book.getAuthor().getFirstName(),
-                                                            book.getAuthor().getSecondName(),
-                                                            book.getAuthor().getBirthday());
+                book.getAuthor().getSecondName(),
+                book.getAuthor().getBirthday());
         Genre genre = genreService.getByName(book.getGenre().getName());
         book.getAuthor().setId(author.getId());
         book.getGenre().setId(genre.getId());
