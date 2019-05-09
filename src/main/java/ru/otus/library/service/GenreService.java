@@ -18,12 +18,8 @@ public class GenreService {
     }
 
     public Genre add(String genreName) {
-        if (genreRepository.findByName(genreName).isPresent()){
-            return null;
-        }
-        else {
-            return genreRepository.save(new Genre(genreName));
-        }
+        Optional<Genre> genreOptional = genreRepository.findByName(genreName);
+        return genreOptional.orElseGet(() -> genreRepository.save(new Genre(genreName)));
     }
     public Genre getByName(String name) {
         Optional<Genre> genres = genreRepository.findByName(name);

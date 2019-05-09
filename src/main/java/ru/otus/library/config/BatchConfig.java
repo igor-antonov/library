@@ -12,13 +12,9 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.builder.MongoItemReaderBuilder;
-import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
-import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import ru.otus.library.domain.Book;
 import ru.otus.library.domain.BookMongo;
@@ -58,20 +54,16 @@ public class BatchConfig {
     public BookItemProcessor processor(){
         return new BookItemProcessor();
     }
-    @Bean
-    public FlatFileItemWriter writer() {
-        return new FlatFileItemWriterBuilder<>()
-                .name("bookItemWriter")
-                .resource(new FileSystemResource("output.csv"))
-                .lineAggregator(new DelimitedLineAggregator<>())
-                .build();
+
+    @Bean BookItemWriter writer() {
+        return new BookItemWriter();
     }
 
     @Bean
-    public Job importBookJob(Step step1) {
+    public Job importBookJob(Step bookStep) {
         return jobBuilderFactory.get("importBookJob")
                 .incrementer(new RunIdIncrementer())
-                .flow(step1)
+                .flow(bookStep)
                 .end()
                 .listener(new JobExecutionListener() {
                     @Override
@@ -88,11 +80,11 @@ public class BatchConfig {
     }
 
     @Bean
-    public Step step1(FlatFileItemWriter writer) {
-        return stepBuilderFactory.get("step1")
+    public Step bookStep(ItemReader<BookMongo> reader, BookItemProcessor processor, BookItemWriter writer) {
+        return stepBuilderFactory.get("bookStep")
                 .<BookMongo, Book> chunk(10)
-                .reader(reader())
-                .processor(processor())
+                .reader(reader)
+                .processor(processor)
                 .writer(writer)
                 .build();
     }
