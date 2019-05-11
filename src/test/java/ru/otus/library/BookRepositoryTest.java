@@ -4,8 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.library.domain.Author;
 import ru.otus.library.domain.Book;
@@ -16,13 +15,11 @@ import ru.otus.library.repository.BookRepository;
 import ru.otus.library.repository.GenreRepository;
 
 import java.time.LocalDate;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@ComponentScan
-@DataJpaTest
+@SpringBootTest
 public class BookRepositoryTest {
 
     @Autowired
@@ -40,6 +37,10 @@ public class BookRepositoryTest {
 
     @Before
     public void prepare(){
+        bookRepository.deleteAll();
+        authorRepository.deleteAll();
+        genreRepository.deleteAll();
+
         author = authorRepository.save(new Author("Иван", "Бунин", LocalDate.of(1870, 10, 20)));
         genre = genreRepository.save(new Genre("Comedian"));
         bookId = bookRepository.save(new Book("Сказки", author, genre)).getId();
@@ -54,7 +55,7 @@ public class BookRepositoryTest {
     @Test
     public void getAll(){
         assertThat(
-                bookRepository.findAll()).isEqualTo(Collections.singletonList(book));
+                bookRepository.findAll().get(0)).isEqualTo(book);
     }
 
     @Test
