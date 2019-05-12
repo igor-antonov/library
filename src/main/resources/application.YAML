@@ -9,3 +9,8 @@ spring:
       hibernate:
         id:
           new_generator_mappings: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["health", "loggers"]
