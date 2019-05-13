@@ -10,7 +10,12 @@ spring:
         id:
           new_generator_mappings: false
 management:
+  endpoint:
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
-        include: ["health", "loggers"]
+        include: ["health", "loggers", "logfile"]
+logging:
+  file: app.log

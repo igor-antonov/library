@@ -21,10 +21,10 @@ public class CountBooksHealthIndicator implements HealthIndicator {
         if (bookCount < 1) {
             return Health.down()
                     .status(Status.DOWN)
-                    //.withDetail("Books count", bookCount)
+                    .withDetail("Books count", bookCount)
                     .build();
         } else {
-            return Health.up().build();
+            return Health.up().withDetail("Books count", bookCount).build();
         }
     }
 }
