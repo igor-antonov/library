@@ -1,4 +1,11 @@
 spring:
+  application:
+    name: library
   data:
     mongodb:
       database: otus
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -45,6 +45,11 @@
     </table>
 
 <div>
+    <h4>Нажмите на картинку:</h4>
+    <a th:href="@{http://localhost:8080/actuator/hystrix.stream}"><img src="hystrix.jpg"></a>
+</div>
+
+<div>
 <form id="add-form" th:action="@{/add}" th:method="post">
     <h2>Добавление новой книги:</h2>
 
